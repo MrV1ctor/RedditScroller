@@ -91,10 +91,12 @@ function fetchContent() {
         after = body.data.after;
         for (let i = 0; i < body.data.children.length; i++) {
             // if (body.data.children[i].data.post_hint == "image") {
-                //if it s a gallery or not a video, skip it
+                //if it s a gallery or not a picture, skip it
                 if (body.data.children[i].data.is_gallery == true)
                     continue;
                 if (body.data.children[i].data.url_overridden_by_dest == undefined)
+                    continue;
+                if (body.data.children[i].data.post_hint == "rich:video")
                     continue;
 
                 let div = document.createElement("div");
@@ -134,8 +136,14 @@ function fetchContent() {
                     div.appendChild(aUser);
                 }
                 
+                img.onerror = function() {
+                    this.parentElement.remove();
+                  };
+
                 div.appendChild(img);
                 parentDiv.appendChild(div);
+
+
             // }
             // else
             // {
