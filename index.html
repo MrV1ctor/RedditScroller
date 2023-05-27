@@ -1,24 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reddit</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="main.js" defer></script>
-</head>
-<body>
-    <div id="input">
-        <input type="text" oninput="searchInput()" id="subreddit" placeholder="Enter Subreddit">
-        Is User? <input type="checkbox" id="isUser" title="Is User?">
-        Auto-scroll? <input type="checkbox" id="autoscroll" title="Auto-scroll?">
-        NSFW? <input type="checkbox" id="nsfw" title="NSFW?">
-    </div>
-    <div id="similar-subreddits"></div>
-    <div id="fetch-buttons">
-        <h3 id="fetch">Fetch</h3>
-        <h3 id="fetch-random">Fetch Random</h3>
-    </div>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Reddit</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="main.js" defer></script>
+        <script src="modals.js" defer></script>
+    </head>
+    <body>
+        <div id="input">
+            <input
+                type="text"
+                oninput="searchInput()"
+                id="subreddit"
+                placeholder="Enter Subreddit"
+            />
+            <label for="isUser">Search Users</label>
+            <input type="checkbox" id="isUser" title="Is User?" />
+
+            <label for="autoscroll">Enable Autoscroll</label>
+            <input type="checkbox" id="autoscroll" title="Auto-scroll?" />
+
+            <label for="nsfw">Enable NSFW</label>
+            <input type="checkbox" id="nsfw" title="NSFW?" />
+
+            <button id="filters">Show Filters</button>
+            <div id="filtersmodal">
+                <span id="filtersmodalcontent">
+                    <button id="filtersmodalclose">x</button>
+                    <textarea id="subredditFilter" cols="30" rows="10">Subreddits to blocklist...</textarea>
+                    <textarea id="subredditContentFilter" cols="30" rows="10">Words in subs to blocklist...</textarea>
+                </span>
+            </div>
+        </div>
+        <div id="similar-subreddits"></div>
+        <div id="fetch-buttons">
+            <h3 id="fetch">Fetch</h3>
+            <h3 id="fetch-random">Fetch Random</h3>
+        </div>
+    </body>
 </html>
