@@ -81,6 +81,8 @@ function fetchContent() {
 
     let parentDiv = document.createElement("div");
     parentDiv.id="content";
+    console.log("FETCHING FROM:")
+    console.log(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
     fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`)
     // fetch("https://www.reddit.com/r/ProgrammerHumor/top/.json?limit=100&after="+after)
     // fetch("https://www.reddit.com/r/memes.json")
@@ -88,11 +90,14 @@ function fetchContent() {
     .then(body => {
         after = body.data.after;
         for (let i = 0; i < body.data.children.length; i++) {
-            if (body.data.children[i].data.post_hint == "image") {
+            // if (body.data.children[i].data.post_hint == "image") {
+                if (body.data.children[i].data.is_gallery == true)
+                    continue;
                 let div = document.createElement("div");
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
                 img.src = body.data.children[i].data.url_overridden_by_dest;
+                // console.log(body.data.children[i].data.url_overridden_by_dest);
                 title.textContent = body.data.children[i].data.title;
 
                 div.appendChild(title);
@@ -127,8 +132,14 @@ function fetchContent() {
                 
                 div.appendChild(img);
                 parentDiv.appendChild(div);
-            }
+            // }
+            // else
+            // {
+            //     console.log("type: "+(body.data.children[i].data.post_hint));
+            // }
+
         }
+        console.log("length: "+parentDiv.children.length);
 
         //add a div to the bottom of parent div to make sure the scroll event is triggered
         let div = document.createElement("div");
@@ -144,9 +155,9 @@ function fetchContent() {
         document.getElementById('content').addEventListener('scroll', event => {
             const {scrollHeight, scrollTop, clientHeight} = event.target;
 
-            console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
+            // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
             if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                console.log("bottom reached");
+                // console.log("bottom reached");
                 if (searched || isUser == "user")
                 {
                     fetchContent();
@@ -167,7 +178,7 @@ function fetchContent() {
 }
 
 function pageScroll() {
-    console.log("scrolling");
+    // console.log("scrolling");
     if (document.getElementById("content") && autoscroll)
         document.getElementById("content").scrollBy(0,1);
     scrolldelay = setTimeout(pageScroll,10);
@@ -222,7 +233,7 @@ function similarity(s1, s2) {
   }
 
   function searchInput() {
-    console.log("searching");
+    // console.log("searching");
     let input = document.getElementById("subreddit").value;
     let isUser = document.getElementById("isUser").checked ? "user" : "r";
     let nsfw = document.getElementById("nsfw").checked;
@@ -263,3 +274,10 @@ function similarity(s1, s2) {
   }
 
 //   testing codespace branching whatever
+
+/*
+  notes
+
+  theres is a property is_gallery which is eitehr true or false
+
+*/
