@@ -174,6 +174,10 @@ function fetchContent() {
                 
                 img.onerror = function() {
                     this.parentElement.remove();
+                    if (parentDiv.children.length == 1)
+                    {
+                        fetchRandomContent();
+                    }
                   };
 
                 div.appendChild(img);
@@ -198,6 +202,11 @@ function fetchContent() {
 
 
         document.body.appendChild(parentDiv);
+
+        if (parentDiv.children.length == 1)
+        {
+            fetchRandomContent();
+        }
             
 
         //infinite scroll stuff
