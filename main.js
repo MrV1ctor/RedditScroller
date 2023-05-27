@@ -91,8 +91,12 @@ function fetchContent() {
         after = body.data.after;
         for (let i = 0; i < body.data.children.length; i++) {
             // if (body.data.children[i].data.post_hint == "image") {
+                //if it s a gallery or not a video, skip it
                 if (body.data.children[i].data.is_gallery == true)
                     continue;
+                if (body.data.children[i].data.url_overridden_by_dest == undefined)
+                    continue;
+
                 let div = document.createElement("div");
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
