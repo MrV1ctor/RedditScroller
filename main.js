@@ -1,10 +1,18 @@
+let autoscroll = false;
 let after = "";
 let searched = false;
-let subredditElement = document.querySelector("#subreddit");
 
-//input stuff
+/* ELEMENTS */
+let subredditElement = document.querySelector("#subreddit");
+let fetcher = document.querySelector("#fetch")
+let randfetcher = document.querySelector("#fetch-random")
+let isUserCheck = document.querySelector("#isUser")
+let subredditNameFiltersInput = document.querySelector("#subredditFilter")
+let subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter")
+
+/* INPUT */
 let subreddit;
-document.getElementById("fetch").addEventListener("click", () => {
+fetcher.addEventListener("click", () => {
     if (subredditElement.value == "") {
         subreddit = "ProgrammerHumor";
         subredditElement.value = subreddit;
@@ -19,29 +27,27 @@ document.getElementById("fetch").addEventListener("click", () => {
     fetchContent();
 });
 
-document.getElementById("fetch-random").onclick = function () {
+randfetcher.addEventListener("click", () => {
     searched = false;
-
     fetchRandomContent();
-};
+});
 
-document.getElementById("isUser").onclick = function () {
-    if (document.getElementById("isUser").checked) {
+isUserCheck.addEventListener("click", () => {
+    if (isUserCheck.checked) {
         subredditElement.placeholder = "Enter Username";
     } else {
         subredditElement.placeholder = "Enter Subreddit";
     }
-};
+})
 
-document.getElementById("nsfw").onclick = function () {
+document.getElementById("nsfw").addEventListener("click", () => {
     fetchRandomContent();
-};
+})
 
-let autoscroll = false;
-document.getElementById("autoscroll").onclick = function () {
+document.getElementById("autoscroll").addEventListener("click", () => {
     pageScroll();
     autoscroll = !autoscroll;
-};
+});
 
 fetchRandomContent();
 
@@ -52,31 +58,48 @@ function fetchRandomContent() {
     let linksfw = "https://middleRedditGetter.cheespeasa.repl.co/sfwsubs";
     let linknsfw = "https://middleRedditGetter.cheespeasa.repl.co/nsfwsubs";
     fetch(nsfw ? linknsfw : linksfw)
-        .then((response) => response.text())
-        .then((body) => {
-            console.log(body)
+        .then((response) => response.text()).then((body) => {
             let lines = body.split("\n");
-            let randomLine = lines[Math.floor(Math.random() * lines.length)];
+            let randomLine = ""
+            do {
+                randomLine = lines[Math.floor(Math.random() * lines.length)];
+                console.log("invalid sub: " + randomLine)
+            } while (!checkSub(randomLine));
             subreddit = randomLine;
-            subredditElement.value = subreddit;
-            document.getElementById("isUser").checked = false;
+            subredditElement.value = randomLine;
+            isUserCheck.checked = false;
             after = "";
             searchInput();
             fetchContent();
         });
 }
 
-let subredditNameContainsFilters = ["horror"];
+/* FILTERS */
 
-let subredditNameFilters = ["ProgrammerHumor"];
+let subredditNameContainsFilters = [];
+let subredditNameFilters = [];
 
-function checkPost(data) {
-    subredditNameContainsFilters.forEach((filter) => {
-        if (data.subreddit.includes(filter)) return false;
-    });
-    subredditNameFilters.forEach((filter) => {
-        if (data.subreddit === filter) return false;
-    });
+subredditNameContainsFiltersInput.addEventListener("input", () => {
+    subredditNameContainsFilters = subredditNameContainsFiltersInput.value.split("\n")
+})
+
+subredditNameFiltersInput.addEventListener("input", () => {
+    subredditNameFilters = subredditNameFiltersInput.value.split("\n");
+});
+
+function checkSub(sub) {
+    for (let filter of subredditNameContainsFilters) {
+        if (sub.includes(filter)) {
+            console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
+            return false;
+        }
+    }
+    for (let filter of subredditNameFilters) {
+        if (sub === filter) {
+            console.log("Blocked by manual exclusion");    
+            return false;
+        }
+    };
 
     return true;
 }
@@ -88,7 +111,7 @@ function fetchContent() {
         document.getElementById("content").remove();
     }
 
-    let isUser = document.getElementById("isUser").checked ? "user" : "r";
+    let isUser = isUserCheck.checked ? "user" : "r";
 
     let parentDiv = document.createElement("div");
     parentDiv.id = "content";
@@ -99,10 +122,7 @@ function fetchContent() {
         .then((body) => {
             after = body.data.after;
             for (let i = 0; i < body.data.children.length; i++) {
-                if (
-                    body.data.children[i].data.post_hint == "image" &&
-                    checkPost(body.data.children[i].data)
-                ) {
+                if (body.data.children[i].data.post_hint == "image") {
                     let div = document.createElement("div");
                     let title = document.createElement("h4");
                     let img = document.createElement("img");
@@ -115,7 +135,7 @@ function fetchContent() {
                         aSub.href = `javascript:
                                 subreddit="${body.data.children[i].data.subreddit}";
                                 subredditElement.value = subreddit;
-                                document.getElementById("isUser").checked=false;
+                                isUserCheck.checked=false;
                                 after="";
                                 fetchContent();`;
                         let sub = document.createElement("h5");
@@ -127,7 +147,7 @@ function fetchContent() {
                         aUser.href = `javascript:
                                 subreddit="${body.data.children[i].data.author}";
                                 subredditElement.value = subreddit;
-                                document.getElementById("isUser").checked=true;
+                                isUserCheck.checked=true;
                                 after="";
                                 fetchContent();`;
                         let user = document.createElement("h5");
@@ -237,12 +257,14 @@ function editDistance(s1, s2) {
 function searchInput() {
     console.log("searching");
     let input = subredditElement.value;
-    let isUser = document.getElementById("isUser").checked ? "user" : "r";
+    let isUser = isUserCheck.checked ? "user" : "r";
     let nsfw = document.getElementById("nsfw").checked;
     let similar_subreddits = [];
     let textBox = document.getElementById("similar-subreddits");
 
-    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
+    let linksfw = "https://middleRedditGetter.cheespeasa.repl.co/sfwsubs";
+    let linknsfw = "https://middleRedditGetter.cheespeasa.repl.co/nsfwsubs";
+    fetch(nsfw ? linknsfw : linksfw)
         .then((response) => response.text())
         .then((body) => {
             //find 5 similar subreddits, sorted by similarity
