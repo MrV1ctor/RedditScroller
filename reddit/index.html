@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <div id="input">
+        <input type="text" oninput="searchInput()" id="subreddit" placeholder="Enter Subreddit">
+        Is User? <input type="checkbox" id="isUser" title="Is User?">
+        Auto-scroll? <input type="checkbox" id="autoscroll" title="Auto-scroll?">
+        NSFW? <input type="checkbox" id="nsfw" title="NSFW?">
+    </div>
+    <div id="similar-subreddits"></div>
+    <div id="fetch-buttons">
+        <h3 id="fetch">Fetch</h3>
+        <h3 id="fetch-random">Fetch Random</h3>
+    </div>
+</body>
+</html>
