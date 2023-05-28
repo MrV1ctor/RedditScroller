@@ -55,6 +55,10 @@ img:hover {
     border-radius: 0px;
     transform: scale(1.2);
 }
+img:active {
+    border-radius: 0px;
+    transform: scale(5);
+}
 
 #similar-subreddits {
     display: flex;
