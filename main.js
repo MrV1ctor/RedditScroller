@@ -9,7 +9,6 @@ let randfetcher = document.querySelector("#fetch-random")
 let userfetcher = document.querySelector("#fetch-user")
 
 let searchUser = false;
-let isUserCheck = document.querySelector("#isUser")
 let subredditNameFiltersInput = document.querySelector("#subredditFilter")
 let subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter")
 
@@ -35,6 +34,7 @@ fetcher.addEventListener("click", () => {
 });
 
 userfetcher.addEventListener("click", () => {
+    searchUser = true;
     fetcherClick();
 })
 
@@ -112,7 +112,7 @@ function fetchContent() {
         document.getElementById("content").remove();
     }
 
-    let isUser = searchUser ? "u" : "r";
+    let isUser = searchUser ? "user" : "r";
 
     let parentDiv = document.createElement("div");
     parentDiv.id="content";
@@ -143,16 +143,17 @@ function fetchContent() {
                 title.textContent = body.data.children[i].data.title;
 
                 div.appendChild(title);
-                if (isUser == "u") 
+                if (isUser == "user") 
                 {
                     let aSub = document.createElement("a");
                     aSub.href = `javascript:
                             subreddit="${body.data.children[i].data.subreddit}";
                             subredditElement.value = subreddit; 
+                            searchUser=false;
                             after="";
                             fetchContent();`;
                     let sub = document.createElement("h5");
-                    sub.textContent = body.data.children[i].data.subreddit;
+                    sub.textContent = "r/"+body.data.children[i].data.subreddit;
                     aSub.appendChild(sub);
                     div.appendChild(aSub);
                 } 
@@ -162,11 +163,11 @@ function fetchContent() {
                     aUser.href = `javascript:
                             subreddit="${body.data.children[i].data.author}";
                             subredditElement.value = subreddit;
-                            isUserCheck.checked=true;
+                            searchUser=true;
                             after="";
-                            fetchContent();`;
+                            fetcherClick();`;
                     let user = document.createElement("h5");
-                    user.textContent = body.data.children[i].data.author;
+                    user.textContent = "u/"+body.data.children[i].data.author;
                     aUser.appendChild(user);
                     div.appendChild(aUser);
                 
@@ -297,7 +298,7 @@ function editDistance(s1, s2) {
 function searchInput() {
     console.log("searching");
     let input = subredditElement.value;
-    let isUser = isUserCheck.checked ? "user" : "r";
+    let isUser = searchUser ? "user" : "r";
     let nsfw = document.getElementById("nsfw").checked;
     let similar_subreddits = [];
     let textBox = document.getElementById("similar-subreddits");
@@ -323,9 +324,6 @@ function searchInput() {
                 a.href = `javascript:
                         subreddit="${similar_subreddits[i].name}";
                         subredditElement.value = subreddit;
-                        document.getElementById("isUser").checked=${
-                            isUser == "user"
-                        };
                         after="";
                         fetchContent();`;
                 let h = document.createElement("h4");
