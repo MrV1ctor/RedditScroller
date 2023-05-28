@@ -44,9 +44,9 @@ randfetcher.addEventListener("click", () => {
     fetchRandomContent();
 });
 
-document.getElementById("nsfw").addEventListener("click", () => {
-    fetchRandomContent();
-})
+// document.getElementById("nsfw").addEventListener("click", () => {
+//     fetchRandomContent();
+// })
 
 document.getElementById("autoscroll").addEventListener("click", () => {
     pageScroll();
