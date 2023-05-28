@@ -219,7 +219,7 @@ function fetchContent() {
             // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
             if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
                 // console.log("bottom reached");
-                if (searched || isUser == "u")
+                if (searched || isUser == "user")
                 {
                     fetchContent();
                 }
@@ -297,7 +297,7 @@ function editDistance(s1, s2) {
 function searchInput() {
     console.log("searching");
     let input = subredditElement.value;
-    let isUser = isUserCheck.checked ? "u" : "r";
+    let isUser = isUserCheck.checked ? "user" : "r";
     let nsfw = document.getElementById("nsfw").checked;
     let similar_subreddits = [];
     let textBox = document.getElementById("similar-subreddits");
@@ -324,7 +324,7 @@ function searchInput() {
                         subreddit="${similar_subreddits[i].name}";
                         subredditElement.value = subreddit;
                         document.getElementById("isUser").checked=${
-                            isUser == "u"
+                            isUser == "user"
                         };
                         after="";
                         fetchContent();`;
