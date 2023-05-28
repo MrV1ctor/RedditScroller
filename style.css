@@ -71,6 +71,7 @@ img:hover {
 img:active {
     border-radius: 0px;
     transform: scale(5);
+    filter: blur(0px);
 }
 
 #similar-subreddits {

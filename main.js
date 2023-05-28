@@ -59,7 +59,7 @@ fetchRandomContent();
 function fetchRandomContent() {
     //get a random line from "./subreddit parsed/parsedSubreddits.txt"
     let nsfw = document.getElementById("nsfw").checked;
-    fetch("./subreddit parsed/"+(nsfw ? "nsfw" : "")+"parsedSubreddits.txt")
+    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
         .then((response) => response.text()).then((body) => {
             let lines = body.split("\n");
             let randomLine = ""
@@ -98,7 +98,7 @@ function checkSub(sub) {
     }
     for (let filter of subredditNameFilters) {
         if (sub === filter) {
-            console.log("Blocked by manual exclusion");    
+            console.log("Blocked by manual exclusion");
             return false;
         }
     };
@@ -116,19 +116,19 @@ function fetchContent() {
     let isUser = searchUser ? "user" : "r";
 
     let parentDiv = document.createElement("div");
-    parentDiv.id="content";
+    parentDiv.id = "content";
     console.log("FETCHING FROM:")
     console.log(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
     fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`)
-    // fetch("https://www.reddit.com/r/ProgrammerHumor/top/.json?limit=100&after="+after)
-    // fetch("https://www.reddit.com/r/memes.json")
-    .then(response => response.json())
-    .then(body => {
-        if (body.message == "Forbidden")
-            fetchRandomContent();
-        after = body.data.after;
-        for (let i = 0; i < body.data.children.length; i++) {
-            // if (body.data.children[i].data.post_hint == "image") {
+        // fetch("https://www.reddit.com/r/ProgrammerHumor/top/.json?limit=100&after="+after)
+        // fetch("https://www.reddit.com/r/memes.json")
+        .then(response => response.json())
+        .then(body => {
+            if (body.message == "Forbidden")
+                fetchRandomContent();
+            after = body.data.after;
+            for (let i = 0; i < body.data.children.length; i++) {
+                // if (body.data.children[i].data.post_hint == "image") {
                 //if it s a gallery or not a picture, skip it
                 if (body.data.children[i].data.is_gallery == true)
                     continue;
@@ -139,12 +139,12 @@ function fetchContent() {
 
                 let div = document.createElement("div");
                 div.classList.add(["post"])
+
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
                 img.src = body.data.children[i].data.url_overridden_by_dest;
 
-                if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false)
-                {
+                if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
                     img.classList.add("nsfw");
                 }
 
@@ -152,8 +152,18 @@ function fetchContent() {
                 title.textContent = body.data.children[i].data.title;
 
                 div.appendChild(title);
-                if (isUser == "user") 
-                {
+                if (body.data.children[i].data.distinguished === "moderator") {
+                    let modicon = document.createElement("i")
+                    modicon.classList.add(["fa-solid", "fa-shield"])
+                    div.appendChild(modicon)
+                    console.log("What a distinguished young man, I wonder what he does for a living")
+                }
+                if (body.data.children[i].data.pinned == true) {
+                    let pinicon = document.createElement("i")
+                    pinicon.classList.add(["fa-solid", "fa-thumbtack"])
+                    div.appendChild(pinicon)
+                }
+                if (isUser == "user") {
                     let aSub = document.createElement("a");
                     aSub.href = `javascript:
                             subreddit="${body.data.children[i].data.subreddit}";
@@ -162,12 +172,10 @@ function fetchContent() {
                             after="";
                             fetchContent();`;
                     let sub = document.createElement("h5");
-                    sub.textContent = "r/"+body.data.children[i].data.subreddit;
+                    sub.textContent = "r/" + body.data.children[i].data.subreddit;
                     aSub.appendChild(sub);
                     div.appendChild(aSub);
-                } 
-                else 
-                {
+                } else {
                     let aUser = document.createElement("a");
                     aUser.href = `javascript:
                             subreddit="${body.data.children[i].data.author}";
@@ -176,75 +184,71 @@ function fetchContent() {
                             after="";
                             fetcherClick();`;
                     let user = document.createElement("h5");
-                    user.textContent = "u/"+body.data.children[i].data.author;
+                    user.textContent = "u/" + body.data.children[i].data.author;
                     aUser.appendChild(user);
                     div.appendChild(aUser);
-                
+
 
                     div.appendChild(img);
                     parentDiv.appendChild(div);
                 }
-                
-                img.onerror = function() {
+
+                img.onerror = function () {
                     this.parentElement.remove();
-                    if (parentDiv.children.length == 1)
-                    {
+                    if (parentDiv.children.length == 1) {
                         fetchRandomContent();
                     }
-                  };
+                };
 
                 div.appendChild(img);
                 parentDiv.appendChild(div);
 
 
-            // }
-            // else
-            // {
-            //     console.log("type: "+(body.data.children[i].data.post_hint));
-            // }
-            
-
-        }
-        console.log("length: "+parentDiv.children.length);
-
-        //add a div to the bottom of parent div to make sure the scroll event is triggered
-        let div = document.createElement("div");
-        div.style.height = window.innerHeight+"px";
-        div.style.width = "100%";
-        parentDiv.appendChild(div);
+                // }
+                // else
+                // {
+                //     console.log("type: "+(body.data.children[i].data.post_hint));
+                // }
 
 
-        document.body.appendChild(parentDiv);
+            }
+            console.log("length: " + parentDiv.children.length);
 
-        if (parentDiv.children.length == 1)
-        {
-            fetchRandomContent();
-        }
-            
+            //add a div to the bottom of parent div to make sure the scroll event is triggered
+            let div = document.createElement("div");
+            div.style.height = window.innerHeight + "px";
+            div.style.width = "100%";
+            parentDiv.appendChild(div);
 
-        //infinite scroll stuff
-        document.getElementById('content').addEventListener('scroll', event => {
-            const {scrollHeight, scrollTop, clientHeight} = event.target;
 
-            // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-            if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                // console.log("bottom reached");
-                if (searched || isUser == "user")
-                {
-                    fetchContent();
+            document.body.appendChild(parentDiv);
+
+            if (parentDiv.children.length == 1) {
+                fetchRandomContent();
+            }
+
+
+            //infinite scroll stuff
+            document.getElementById('content').addEventListener('scroll', event => {
+                const { scrollHeight, scrollTop, clientHeight } = event.target;
+
+                // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
+                if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
+                    // console.log("bottom reached");
+                    if (searched || isUser == "user") {
+                        fetchContent();
+                    }
+                    else {
+                        fetchRandomContent();
+                    }
                 }
-                else
-                {
-                    fetchRandomContent();
-                }
+            });
+
+            //remove page blocker
+            if (document.getElementById("pt-ext-root")) {
+                document.getElementById("pt-ext-root").remove();
             }
         });
-
-        //remove page blocker
-        if (document.getElementById("pt-ext-root")) {
-            document.getElementById("pt-ext-root").remove();
-        }
-    });
 
 }
 
@@ -312,7 +316,7 @@ function searchInput() {
     let similar_subreddits = [];
     let textBox = document.getElementById("similar-subreddits");
 
-    fetch("./subreddit parsed/"+(nsfw ? "nsfw" : "")+"parsedSubreddits.txt")
+    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
         .then((response) => response.text())
         .then((body) => {
             //find 5 similar subreddits, sorted by similarity
