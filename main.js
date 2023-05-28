@@ -132,7 +132,7 @@ function fetchContent() {
                     continue;
                 if (body.data.children[i].data.url_overridden_by_dest == undefined)
                     continue;
-                if (body.data.children[i].data.post_hint == "rich:video")
+                if (body.data.children[i].data.post_hint == "rich:video" || body.data.children[i].data.is_video == true)
                     continue;
 
                 let div = document.createElement("div");
