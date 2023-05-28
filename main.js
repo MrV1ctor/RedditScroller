@@ -152,17 +152,8 @@ function fetchContent() {
                 title.textContent = body.data.children[i].data.title;
 
                 div.appendChild(title);
-                if (body.data.children[i].data.distinguished === "moderator" || true) {
-                    let modicon = document.createElement("i")
-                    modicon.classList.add(["fa-solid", "fa-shield", "fixsize"])
-                    div.appendChild(modicon)
-                    console.log("What a distinguished young man, I wonder what he does for a living")
-                }
-                if (body.data.children[i].data.pinned == true) {
-                    let pinicon = document.createElement("i")
-                    pinicon.classList.add(["fa-solid", "fa-thumbtack"])
-                    div.appendChild(pinicon)
-                }
+                
+
                 if (isUser == "user") {
                     let aSub = document.createElement("a");
                     aSub.href = `javascript:
