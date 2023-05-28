@@ -30,6 +30,7 @@ function fetcherClick() {
     fetchContent();
 }
 fetcher.addEventListener("click", () => {
+    searchUser = false
     fetcherClick();
 });
 
