@@ -181,7 +181,7 @@ function fetchContent() {
                 
                 img.onerror = function() {
                     this.parentElement.remove();
-                    if (parentDiv.children.length == 0)
+                    if (parentDiv.children.length == 1)
                     {
                         fetchRandomContent();
                     }

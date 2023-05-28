@@ -4,11 +4,21 @@ body {
     display: grid;
     grid-template-rows: 5% 8% 0% 85%;
     overflow: hidden;
+    position: fixed;
     background: #131313;
     color: white;
     font-family: sans-serif;
     padding: 20px;
 }
+
+@media screen and (max-width: 530px) {
+    body {
+        grid-template-rows: 7% 8% 0% 85%;
+    }
+    #searchBoxSpan {
+        display: flex !important;
+    }
+  }
 
 #searchBoxSpan {
     background-color: white;
