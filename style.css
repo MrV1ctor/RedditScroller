@@ -147,3 +147,7 @@ input {
     /* blur it */
     filter: blur(20px);
 }
+
+.fixsize {
+    
+}
