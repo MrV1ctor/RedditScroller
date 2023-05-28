@@ -6,13 +6,17 @@ let searched = false;
 let subredditElement = document.querySelector("#subreddit");
 let fetcher = document.querySelector("#fetch")
 let randfetcher = document.querySelector("#fetch-random")
+let userfetcher = document.querySelector("#fetch-user")
+
+let searchUser = false;
 let isUserCheck = document.querySelector("#isUser")
 let subredditNameFiltersInput = document.querySelector("#subredditFilter")
 let subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter")
 
 /* INPUT */
 let subreddit;
-fetcher.addEventListener("click", () => {
+
+function fetcherClick() {
     if (subredditElement.value == "") {
         subreddit = "ProgrammerHumor";
         subredditElement.value = subreddit;
@@ -25,20 +29,19 @@ fetcher.addEventListener("click", () => {
     searched = true;
 
     fetchContent();
+}
+fetcher.addEventListener("click", () => {
+    fetcherClick();
 });
+
+userfetcher.addEventListener("click", () => {
+    fetcherClick();
+})
 
 randfetcher.addEventListener("click", () => {
     searched = false;
     fetchRandomContent();
 });
-
-isUserCheck.addEventListener("click", () => {
-    if (isUserCheck.checked) {
-        subredditElement.placeholder = "Enter Username";
-    } else {
-        subredditElement.placeholder = "Enter Subreddit";
-    }
-})
 
 document.getElementById("nsfw").addEventListener("click", () => {
     fetchRandomContent();
@@ -65,7 +68,7 @@ function fetchRandomContent() {
             } while (!checkSub(randomLine));
             subreddit = randomLine;
             subredditElement.value = randomLine;
-            isUserCheck.checked = false;
+            searchUser = false;
             after = "";
             searchInput();
             fetchContent();
@@ -109,7 +112,7 @@ function fetchContent() {
         document.getElementById("content").remove();
     }
 
-    let isUser = isUserCheck.checked ? "user" : "r";
+    let isUser = searchUser ? "u" : "r";
 
     let parentDiv = document.createElement("div");
     parentDiv.id="content";
@@ -132,6 +135,7 @@ function fetchContent() {
                     continue;
 
                 let div = document.createElement("div");
+                div.classList.add(["post"])
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
                 img.src = body.data.children[i].data.url_overridden_by_dest;
@@ -139,13 +143,12 @@ function fetchContent() {
                 title.textContent = body.data.children[i].data.title;
 
                 div.appendChild(title);
-                if (isUser == "user") 
+                if (isUser == "u") 
                 {
                     let aSub = document.createElement("a");
                     aSub.href = `javascript:
                             subreddit="${body.data.children[i].data.subreddit}";
-                            subredditElement.value = subreddit;
-                            isUserCheck.checked=false;
+                            subredditElement.value = subreddit; 
                             after="";
                             fetchContent();`;
                     let sub = document.createElement("h5");
@@ -316,6 +319,7 @@ function searchInput() {
             textBox.innerHTML = "";
             for (let i = 0; i < similar_subreddits.length; i++) {
                 let a = document.createElement("a");
+                a.classList.add(["similarsub"])
                 a.href = `javascript:
                         subreddit="${similar_subreddits[i].name}";
                         subredditElement.value = subreddit;

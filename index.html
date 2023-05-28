@@ -1,31 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Reddit</title>
-        <link rel="stylesheet" href="style.css" />
-        <script src="main.js" defer></script>
-        <script src="modals.js" defer></script>
-    </head>
-    <body>
-        <div id="input">
-            <input
-                type="text"
-                oninput="searchInput()"
-                id="subreddit"
-                placeholder="Enter Subreddit"
-            />
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reddit</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="main.js" defer></script>
+    <script src="modals.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div id="input">
+        <span id="searchBoxSpan">
+            <input type="text" oninput="searchInput()" id="subreddit" placeholder="Enter Subreddit">
+            <button id="fetch">
+                <i class="searchButtonIcon fa-solid fa-search"></i>
+            </button>
+            <button id="fetch-random">
+                <i class="searchButtonIcon fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button id="fetch-user">
+                <i class="fa-solid fa-user"></i>
+            </button>
+        </span>
+        <span id="searchOptions">
             <label for="isUser">Search Users</label>
             <input type="checkbox" id="isUser" title="Is User?" />
-
+            
             <label for="autoscroll">Enable Autoscroll</label>
             <input type="checkbox" id="autoscroll" title="Auto-scroll?" />
-
+            
             <label for="nsfw">Enable NSFW</label>
             <input type="checkbox" id="nsfw" title="NSFW?" />
-
+            
             <button id="filters">Show Filters</button>
             <div id="filtersmodal">
                 <span id="filtersmodalcontent">
@@ -34,11 +46,11 @@
                     <textarea id="subredditContentFilter" cols="30" rows="10">Words in subs to blocklist...</textarea>
                 </span>
             </div>
-        </div>
-        <div id="similar-subreddits"></div>
-        <div id="fetch-buttons">
-            <h3 id="fetch">Fetch</h3>
-            <h3 id="fetch-random">Fetch Random</h3>
-        </div>
-    </body>
+        </span>
+    </div>
+    <div id="similar-subreddits"></div>
+    <div id="fetch-buttons">
+    </div>
+</body>
+
 </html>

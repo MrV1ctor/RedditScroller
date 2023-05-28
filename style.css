@@ -6,33 +6,28 @@ body {
     overflow: hidden;
     background: #131313;
     color: white;
+    font-family: sans-serif;
+    padding: 20px;
+}
+
+#searchBoxSpan {
+    background-color: white;
+    border: black 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: left;
+    align-items: flex-start;
+    width: fit-content;
+    padding: 3px;
+    margin-bottom: 10px;
 }
 
 #subreddit {
-    padding: 5px;
     cursor: pointer;
-    border-radius: 8px;
+    border: none;
     transition: 250ms;
-    width: 200px;
-    height: 20px;
     text-align: center;
-    margin-left: 5%;
-    margin-top: 20px;
-    background-color: white;
-    color: black;
-}
-
-h3 {
-    padding: 5px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 250ms;
-    width: fit-content;
-    height: 20px;
-    text-align: center;
-    margin-left: 5%;
-    background-color: white;
-    color: black;
+    margin-top: 2px;
 }
 
 #content {
@@ -41,25 +36,12 @@ h3 {
     height: 100%;
     overflow: scroll;
     width: 100%;
-    padding: 10px;
-    margin-left: 10px;
 }
 
 #content div {
-    margin: 10px;
-    padding: 5px;
     border-radius: 8px;
     height: auto;
     width: 250px;
-}
-
-#memes div h4 {
-    padding: 5px;
-    text-align: center;
-    background: none;
-    color: white;
-    border-radius: 8px;
-    margin: 0;
 }
 
 img {
@@ -74,22 +56,14 @@ img:hover {
     transform: scale(1.2);
 }
 
-a {
-    margin: 10px;
-}
-
 #similar-subreddits {
     display: flex;
     flex-wrap: wrap;
-    height: 100%;
-    width: 100%;
-    padding: 10px;
-    margin-left: 50px;
+    overflow: hidden;
+    margin-bottom: 0px;
 }
 
 input {
-    margin-right: 50px;
-    padding: 5px;
     border-radius: 8px;
     height: auto;
 }
@@ -99,11 +73,23 @@ input {
     flex-wrap: wrap;
     height: 100%;
     width: 100%;
-    /* padding: 10px; */
-    /* margin-left: 50px; */
+    margin-right: 10px;
 }
 
-#filters {
+#fetch, #fetch-random, #fetch-user {
+    cursor: pointer;
+    transition: 250ms;
+    width: 30px;
+    height: 100%;
+    text-align: center;
+    background-color: white;
+    color: black;
+    border: none;
+}
+
+.searchButtonIcon {
+    padding: 0;
+    margin: 0;
 }
 
 #filtersmodal {
@@ -121,8 +107,16 @@ input {
 
 #filtersmodalcontent {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
+}
+
+.post {
+    margin: 10px;
+    padding: 10px;
+    border: solid 2px black;
+}
+.similarsub {
+    margin-right: 10px;
 }
