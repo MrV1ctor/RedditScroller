@@ -124,6 +124,8 @@ function fetchContent() {
     // fetch("https://www.reddit.com/r/memes.json")
     .then(response => response.json())
     .then(body => {
+        if (body.message == "Forbidden")
+            fetchRandomContent();
         after = body.data.after;
         for (let i = 0; i < body.data.children.length; i++) {
             // if (body.data.children[i].data.post_hint == "image") {
@@ -179,7 +181,7 @@ function fetchContent() {
                 
                 img.onerror = function() {
                     this.parentElement.remove();
-                    if (parentDiv.children.length == 1)
+                    if (parentDiv.children.length == 0)
                     {
                         fetchRandomContent();
                     }
