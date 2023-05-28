@@ -14,13 +14,15 @@ body {
     background-color: white;
     border: black 5px;
     border-radius: 5px;
-    display: flex;
-    flex-direction: left;
-    align-items: flex-start;
+    display: inline-flex;
     width: fit-content;
     height: 20px;
     padding: 3px;
     margin-bottom: 10px;
+}
+
+#searchOptions {
+    margin-left: 10px;
 }
 
 #subreddit {
@@ -73,7 +75,7 @@ input {
     height: auto;
 }
 
-#fetch, #fetch-random, #fetch-user {
+#fetch, #fetch-random, #fetch-user, #filters {
     cursor: pointer;
     transition: 250ms;
     width: 30px;
@@ -84,7 +86,7 @@ input {
     border: none;
 }
 
-#fetch:hover, #fetch-random:hover, #fetch-user:hover {
+#fetch:hover, #fetch-random:hover, #fetch-user:hover, #filters:hover {
     transform: scale(110%, 110%);
 }
 
