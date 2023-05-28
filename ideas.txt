@@ -1,3 +1,3 @@
-1. In non-nsfw subs, blur nsfw images (data.over_18)
+DONE 1. In non-nsfw subs, blur nsfw images (data.over_18)
 2. Give mod posts a icon so that you know its a mod post (data.distinguished)
 3. upvote count (data.score)
