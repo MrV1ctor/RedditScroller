@@ -142,6 +142,12 @@ function fetchContent() {
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
                 img.src = body.data.children[i].data.url_overridden_by_dest;
+
+                if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false)
+                {
+                    img.classList.add("nsfw");
+                }
+
                 // console.log(body.data.children[i].data.url_overridden_by_dest);
                 title.textContent = body.data.children[i].data.title;
 

@@ -141,3 +141,8 @@ input {
 .downATinyBit {
     transform: translate(0px,2px);
 }
+
+.nsfw {
+    /* blur it */
+    filter: blur(20px);
+}
