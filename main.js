@@ -345,3 +345,21 @@ function searchInput() {
   theres is a property is_gallery which is eitehr true or false
 
 */
+
+
+//if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
+document.addEventListener("keydown", (e) => {
+    if (e.key == "n") {
+        let wasChecked = document.getElementById("nsfw").checked;
+        //hide the nsfw checkbox if it is not hidden, show it otherwise
+        document.getElementById("nsfw").hidden = !document.getElementById("nsfw").hidden;
+        //also remove the label
+        document.getElementById("nsfw-label").hidden = !document.getElementById("nsfw-label").hidden;
+
+        document.getElementById("nsfw").checked = false;
+        
+        if (wasChecked) {
+            fetchRandomContent();
+        }
+    }
+})
