@@ -119,11 +119,17 @@ function fetchContent() {
     parentDiv.id = "content";
     console.log("FETCHING FROM:")
     console.log(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
-    fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`)
-        // fetch("https://www.reddit.com/r/ProgrammerHumor/top/.json?limit=100&after="+after)
-        // fetch("https://www.reddit.com/r/memes.json")
+    //if this has a 429 error get the reply header and print the time
+    fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
+        if (response.status == 429) {
+            console.log(response.headers.get("x-ratelimit-reset"));
+        }
+        return response;
+    })
         .then(response => response.json())
+
         .then(body => {
+
             if (body.message == "Forbidden")
                 fetchRandomContent();
             after = body.data.after;
@@ -143,6 +149,9 @@ function fetchContent() {
                 let title = document.createElement("h4");
                 let img = document.createElement("img");
                 img.src = body.data.children[i].data.url_overridden_by_dest;
+
+
+
 
                 if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
                     img.classList.add("nsfw");
