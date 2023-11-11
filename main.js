@@ -200,6 +200,15 @@ function fetchContent() {
                         animatedImage.classList.add("nsfw");
                     }
 
+                    //add a function that fullscreens the image on click and then removes it on click again
+                    objectAndDetails.addEventListener("click", () => {
+                        if (objectAndDetails.classList.contains("fullscreen")) {
+                            objectAndDetails.classList.remove("fullscreen");
+                        } else {
+                            objectAndDetails.classList.add("fullscreen");
+                        }
+                    })
+
                 } else {
 
                     //just have the image added no need for gif shenanigans
@@ -214,6 +223,15 @@ function fetchContent() {
                     if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
                         img.classList.add("nsfw");
                     }
+
+                    //add a function that fullscreens the image on click and then removes it on click again
+                    img.addEventListener("click", () => {
+                        if (img.classList.contains("fullscreen-image")) {
+                            img.classList.remove("fullscreen-image");
+                        } else {
+                            img.classList.add("fullscreen-image");
+                        }
+                    })
                 }
                 
                 
@@ -444,3 +462,4 @@ const details = document.querySelector(".object-and-details > details");
 if (mediaQuery.matches) {
   details.removeAttribute("open");
 }
+

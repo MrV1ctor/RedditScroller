@@ -64,15 +64,15 @@ img {
     transition: 200ms;
 }
 
-img:hover {
+img:not(.fullscreen-image):hover {
     border-radius: 0px;
     transform: scale(1.2);
 }
-img:active {
+/* img:active {
     border-radius: 0px;
     transform: scale(5);
     filter: blur(0px);
-}
+} */
 
 #similar-subreddits {
     display: flex;
@@ -213,3 +213,14 @@ input {
     left: 0px;
     overflow: visible;
   }
+
+.fullscreen-image {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* set the width and height keeping the aspect ratio of the image */
+    width: auto;
+    height: 100vh;
+}
