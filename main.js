@@ -130,6 +130,8 @@ function fetchContent() {
 
         .then(body => {
 
+            console.log(body);
+
             if (body.message == "Forbidden")
                 fetchRandomContent();
             after = body.data.after;
@@ -147,15 +149,78 @@ function fetchContent() {
                 div.classList.add(["post"])
 
                 let title = document.createElement("h4");
-                let img = document.createElement("img");
-                img.src = body.data.children[i].data.url_overridden_by_dest;
+
+                let imageSrc = body.data.children[i].data.url_overridden_by_dest;
+                let thumbnailImageSrc = body.data.children[i].data.thumbnail;
+
+                let pictureDiv = document.createElement("div");
+
+                let img;
+                
+                if (imageSrc.endsWith(".gif")) {
+                    //add the following structure
+                    /**
+                        this structure: https://css-tricks.com/pause-gif-details-summary/
+                     */
+
+                    let objectAndDetails = document.createElement("div");
+                    objectAndDetails.classList.add("object-and-details");
+
+                    let staticImage = document.createElement("img");
+                    staticImage.src = thumbnailImageSrc;
+                    staticImage.alt = "static image";
+                    staticImage.loading = "lazy";
+                    objectAndDetails.appendChild(staticImage);
+
+                    let details = document.createElement("details");
+                    // details.open = true;//uncomment to autoplay gifs
+
+                    let summary = document.createElement("summary");
+                    summary.setAttribute("role", "button");
+                    summary.setAttribute("aria-label", "static image");
+                    details.appendChild(summary);
+
+                    let objectAndDetails1 = document.createElement("div");
+                    objectAndDetails1.classList.add("object-and-details1");
+
+                    let animatedImage = document.createElement("img");
+                    animatedImage.src = imageSrc;
+                    animatedImage.alt = "animated image";
+                    animatedImage.loading = "lazy";
+                    objectAndDetails1.appendChild(animatedImage);
+
+                    details.appendChild(objectAndDetails1);
+
+                    objectAndDetails.appendChild(details);
+
+                    div.appendChild(objectAndDetails);
+
+                } else {
+
+                    //just have the image added no need for gif shenanigans
 
 
+                    img = document.createElement("img");
 
+                    pictureDiv.appendChild(img);
 
-                if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                    img.classList.add("nsfw");
+                    img.src = imageSrc;
+
+                    if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                        img.classList.add("nsfw");
+                    }
                 }
+                
+                
+                //if image is a gif, only show the first frame of the gif, otherwise it will be too laggy
+                //you cannot just change the url to .jpg or .png because it will return a 404 error
+                // if (img.src.endsWith(".gif")) {
+                //     img.pause();
+                // }
+
+                // data.thumbnail = thumbnail url, also width and height by _width and _height
+
+
 
                 // console.log(body.data.children[i].data.url_overridden_by_dest);
                 title.textContent = body.data.children[i].data.title;
@@ -189,18 +254,20 @@ function fetchContent() {
                     div.appendChild(aUser);
 
 
-                    div.appendChild(img);
-                    parentDiv.appendChild(div);
+                    // div.appendChild(parentDiv);
+                    // parentDiv.appendChild(div);
                 }
 
-                img.onerror = function () {
-                    this.parentElement.remove();
-                    if (parentDiv.children.length == 1) {
-                        fetchRandomContent();
-                    }
-                };
+                if (img != null) {
+                    img.onerror = function () {
+                        this.parentElement.remove();
+                        if (parentDiv.children.length == 1) {
+                            fetchRandomContent();
+                        }
+                    };
+                }
 
-                div.appendChild(img);
+                div.appendChild(pictureDiv);
                 parentDiv.appendChild(div);
 
 
@@ -372,3 +439,10 @@ document.addEventListener("keydown", (e) => {
         }
     }
 })
+
+const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce))");
+const details = document.querySelector(".object-and-details > details");
+
+if (mediaQuery.matches) {
+  details.removeAttribute("open");
+}
