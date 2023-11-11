@@ -195,6 +195,11 @@ function fetchContent() {
 
                     div.appendChild(objectAndDetails);
 
+                    if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                        staticImage.classList.add("nsfw");
+                        animatedImage.classList.add("nsfw");
+                    }
+
                 } else {
 
                     //just have the image added no need for gif shenanigans
@@ -212,14 +217,7 @@ function fetchContent() {
                 }
                 
                 
-                //if image is a gif, only show the first frame of the gif, otherwise it will be too laggy
-                //you cannot just change the url to .jpg or .png because it will return a 404 error
-                // if (img.src.endsWith(".gif")) {
-                //     img.pause();
-                // }
-
-                // data.thumbnail = thumbnail url, also width and height by _width and _height
-
+                //
 
 
                 // console.log(body.data.children[i].data.url_overridden_by_dest);
