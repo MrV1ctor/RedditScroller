@@ -240,3 +240,11 @@ input {
 
     z-index: 10000;
 }
+
+.video {
+    /* just make the video fit */
+    width: 100%;
+    height: 100%;
+
+    
+}

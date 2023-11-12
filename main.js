@@ -142,8 +142,8 @@ function fetchContent() {
                     continue;
                 if (body.data.children[i].data.url_overridden_by_dest == undefined)
                     continue;
-                if (body.data.children[i].data.post_hint == "rich:video" || body.data.children[i].data.is_video == true)
-                    continue;
+                // if (body.data.children[i].data.post_hint == "rich:video" || body.data.children[i].data.is_video == true)
+                //     continue;
 
                 let div = document.createElement("div");
                 div.classList.add(["post"])
@@ -157,85 +157,121 @@ function fetchContent() {
 
                 let img;
                 
-                if (imageSrc.endsWith(".gif")) {
-                    //add the following structure
-                    /**
-                        this structure: https://css-tricks.com/pause-gif-details-summary/
-                     */
 
-                    let objectAndDetails = document.createElement("div");
-                    objectAndDetails.classList.add("object-and-details");
-
-                    let staticImage = document.createElement("img");
-                    staticImage.src = thumbnailImageSrc;
-                    staticImage.alt = "static image";
-                    staticImage.loading = "lazy";
-                    objectAndDetails.appendChild(staticImage);
-
-                    let details = document.createElement("details");
-                    // details.open = true;//uncomment to autoplay gifs
-
-                    let summary = document.createElement("summary");
-                    summary.setAttribute("role", "button");
-                    summary.setAttribute("aria-label", "static image");
-                    details.appendChild(summary);
-
-                    let objectAndDetails1 = document.createElement("div");
-                    objectAndDetails1.classList.add("object-and-details1");
-
-                    let animatedImage = document.createElement("img");
-                    animatedImage.src = imageSrc;
-                    animatedImage.alt = "animated image";
-                    animatedImage.loading = "lazy";
-                    objectAndDetails1.appendChild(animatedImage);
-
-                    details.appendChild(objectAndDetails1);
-
-                    objectAndDetails.appendChild(details);
-
-                    div.appendChild(objectAndDetails);
-
-                    if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                        staticImage.classList.add("nsfw");
-                        animatedImage.classList.add("nsfw");
-                    }
-
-                    //add a function that fullscreens the image on click and then removes it on click again
-                    objectAndDetails.addEventListener("click", () => {
-                        if (objectAndDetails.classList.contains("fullscreen-gif")) {
-                            objectAndDetails.classList.remove("fullscreen-gif");
-                            details.removeAttribute("open");
-                        } else {
-                            objectAndDetails.classList.add("fullscreen-gif");
+                //if it is a video, add a video element
+                if (body.data.children[i].data.is_video == true) {
+                    let video = document.createElement("video");
+                    video.controls = true;
+                    video.autoplay = false;
+                    // video.muted = true;
+                    video.loop = true;
+                    video.src = body.data.children[i].data.media.reddit_video.fallback_url;
+                    video.onerror = function () {
+                        this.parentElement.remove();
+                        if (parentDiv.children.length == 1) {
+                            fetchRandomContent();
                         }
-                    })
+                    };
+                    pictureDiv.appendChild(video);
+
+                    //add styling to the video to make it fit
+                    video.classList.add("video");
+
+                    //make it fullscreenable with the button
+                    // video.addEventListener('click', function() {
+                    //     if (video.requestFullscreen) {
+                    //         video.requestFullscreen();
+                    //     } else if (video.mozRequestFullScreen) { // Firefox
+                    //         video.mozRequestFullScreen();
+                    //     } else if (video.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    //         video.webkitRequestFullscreen();
+                    //     } else if (video.msRequestFullscreen) { // IE/Edge
+                    //         video.msRequestFullscreen();
+                    //     }
+                    // });
 
                 } else {
 
-                    //just have the image added no need for gif shenanigans
 
+                    if (imageSrc.endsWith(".gif")) {
+                        //add the following structure
+                        /**
+                            this structure: https://css-tricks.com/pause-gif-details-summary/
+                        */
 
-                    img = document.createElement("img");
+                        let objectAndDetails = document.createElement("div");
+                        objectAndDetails.classList.add("object-and-details");
 
-                    pictureDiv.appendChild(img);
+                        let staticImage = document.createElement("img");
+                        staticImage.src = thumbnailImageSrc;
+                        staticImage.alt = "static image";
+                        staticImage.loading = "lazy";
+                        objectAndDetails.appendChild(staticImage);
 
-                    img.src = imageSrc;
+                        let details = document.createElement("details");
+                        // details.open = true;//uncomment to autoplay gifs
 
-                    if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                        img.classList.add("nsfw");
-                    }
+                        let summary = document.createElement("summary");
+                        summary.setAttribute("role", "button");
+                        summary.setAttribute("aria-label", "static image");
+                        details.appendChild(summary);
 
-                    //add a function that fullscreens the image on click and then removes it on click again
-                    img.addEventListener("click", () => {
-                        if (img.classList.contains("fullscreen-image")) {
-                            img.classList.remove("fullscreen-image");
-                        } else {
-                            img.classList.add("fullscreen-image");
+                        let objectAndDetails1 = document.createElement("div");
+                        objectAndDetails1.classList.add("object-and-details1");
+
+                        let animatedImage = document.createElement("img");
+                        animatedImage.src = imageSrc;
+                        animatedImage.alt = "animated image";
+                        animatedImage.loading = "lazy";
+                        objectAndDetails1.appendChild(animatedImage);
+
+                        details.appendChild(objectAndDetails1);
+
+                        objectAndDetails.appendChild(details);
+
+                        div.appendChild(objectAndDetails);
+
+                        if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                            staticImage.classList.add("nsfw");
+                            animatedImage.classList.add("nsfw");
                         }
-                    })
+
+                        //add a function that fullscreens the image on click and then removes it on click again
+                        objectAndDetails.addEventListener("click", () => {
+                            if (objectAndDetails.classList.contains("fullscreen-gif")) {
+                                objectAndDetails.classList.remove("fullscreen-gif");
+                                details.removeAttribute("open");
+                            } else {
+                                objectAndDetails.classList.add("fullscreen-gif");
+                            }
+                        })
+
+                    } else {
+
+                        //just have the image added no need for gif shenanigans
+
+
+                        img = document.createElement("img");
+
+                        pictureDiv.appendChild(img);
+
+                        img.src = imageSrc;
+
+                        if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                            img.classList.add("nsfw");
+                        }
+
+                        //add a function that fullscreens the image on click and then removes it on click again
+                        img.addEventListener("click", () => {
+                            if (img.classList.contains("fullscreen-image")) {
+                                img.classList.remove("fullscreen-image");
+                            } else {
+                                img.classList.add("fullscreen-image");
+                            }
+                        })
+                    }
+                
                 }
-                
-                
                 //
 
 
