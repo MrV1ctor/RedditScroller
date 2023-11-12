@@ -295,7 +295,11 @@ document.addEventListener("keydown", (e) => {
 
         document.getElementById("nsfw").checked = false;
         
-        if (wasChecked) {
+        //if showing saved reload saved
+        if (showingSavedPage) {
+            document.getElementById("saved").click();
+        }
+        else if (wasChecked) {//otherwise fetch random
             fetchRandomContent();
         }
     }
@@ -315,12 +319,14 @@ document.addEventListener("keydown", (e) => {
 //     }
 // });
 
-const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce))");
+// const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce))");
 const details = document.querySelector(".object-and-details > details");
 
-if (mediaQuery.matches) {
-  details.removeAttribute("open");
-}
+// if (mediaQuery.matches) {
+//   details.removeAttribute("open");
+// }
+
+
 
 //if enter clicked while in the subreddit input, search for the subreddit
 subredditElement.addEventListener("keyup", (e) => {
@@ -377,6 +383,14 @@ document.getElementById("saved").addEventListener("click", () => {
 
     //reverse the order of posts
     posts.reverse();
+
+    //go through posts and remove nsfw posts if nsfw is hidden
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].data.over_18 == true && document.getElementById("nsfw").hidden == true) {
+            posts.splice(i, 1);
+            i--;
+        }
+    }
 
     getPosts(posts);
 
@@ -748,3 +762,17 @@ function dataEqualsData(data1, data2) {
 
 }
 
+// if nsfw is clicked, and showing saved, refresh saved
+document.getElementById("nsfw").addEventListener("click", () => {
+    if (showingSavedPage) {
+        document.getElementById("saved").click();
+    }
+    
+})
+
+/*
+TODO: 
+    make cookies more storage efficient
+        only store whatever is used in dataEqualsData ig?
+
+*/
