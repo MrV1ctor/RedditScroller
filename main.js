@@ -333,9 +333,12 @@ subredditElement.addEventListener("keyup", (e) => {
 function updateSavedButton() {
 
     if (showingSavedPage) {
-        document.getElementById("saved").textContent = "Refresh Saved";
+        // document.getElementById("saved").textContent = "Refresh Saved";
+        document.getElementById("saved").innerHTML = "Refresh Saved <i class='searchButtonIcon fa-solid fa-sync'></i>";
     } else {
-        document.getElementById("saved").textContent = "Open Saved";
+        // set the content to "Open Saved <i class="searchButtonIcon fa-solid fa-bookmark"></i>"
+        // document.getElementById("saved").textContent = "Open Saved";
+        document.getElementById("saved").innerHTML = "Open Saved <i class='searchButtonIcon fa-solid fa-bookmark'></i>";
     }
 
 
@@ -520,6 +523,8 @@ function getPosts(posts) {
                     }
                 })
 
+                pictureDiv.appendChild(objectAndDetails);
+
             } else {
 
                 //just have the image added no need for gif shenanigans
@@ -586,9 +591,9 @@ function getPosts(posts) {
         }
 
 
-        if (objectAndDetails) {
-            div.appendChild(objectAndDetails);
-        }
+        // if (objectAndDetails) {
+        //     div.appendChild(objectAndDetails);
+        // }
 
         if (img != null) {
             img.onerror = function () {
@@ -599,7 +604,6 @@ function getPosts(posts) {
             };
         }
         
-        div.appendChild(pictureDiv);
         
         
 
@@ -659,7 +663,8 @@ function getPosts(posts) {
 
         });
 
-        parentDiv.appendChild(saveButton);
+        div.appendChild(saveButton);
+        div.appendChild(pictureDiv);
 
 
             

@@ -249,8 +249,10 @@ input {
     
 }
 
-.save-button {
+.save-input {
 
-    /* style the button so that it is small, and just a plus sign */
+    /* style the button so that you cant click below it to activate it*/
+    /* each post will have a save button */
 
+    /* height: 3vw; */
 }
