@@ -136,6 +136,10 @@ function fetchContent() {
                 fetchRandomContent();
             after = body.data.after;
             for (let i = 0; i < body.data.children.length; i++) {
+
+                console.log("type: " + (body.data.children[i].data.post_hint));
+                console.log(body.data.children[i].data);
+
                 // if (body.data.children[i].data.post_hint == "image") {
                 //if it s a gallery or not a picture, skip it
                 if (body.data.children[i].data.is_gallery == true)
@@ -159,13 +163,31 @@ function fetchContent() {
                 
 
                 //if it is a video, add a video element
-                if (body.data.children[i].data.is_video == true) {
+                if (body.data.children[i].data.post_hint == "rich:video" || body.data.children[i].data.is_video == true) {
                     let video = document.createElement("video");
                     video.controls = true;
                     video.autoplay = false;
-                    // video.muted = true;
                     video.loop = true;
-                    video.src = body.data.children[i].data.media.reddit_video.fallback_url;
+                    // video.muted = true;
+                    
+                    
+                    try {
+                        video.src = body.data.children[i].data.media.reddit_video.fallback_url;
+                    } catch (error) {
+                        try {
+                            video.src = body.data.children[i].data.preview.reddit_video_preview.fallback_url;
+                        } catch (error) {
+                            console.log("error getting video src");
+                            console.log(error);
+                            video.src = "";
+                        }
+                    }
+
+
+                    
+                    // console.log("video.src")
+                    // console.log(video.src)
+
                     video.onerror = function () {
                         this.parentElement.remove();
                         if (parentDiv.children.length == 1) {
