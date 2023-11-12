@@ -522,3 +522,10 @@ if (mediaQuery.matches) {
   details.removeAttribute("open");
 }
 
+//if enter clicked while in the subreddit input, search for the subreddit
+subredditElement.addEventListener("keyup", (e) => {
+    if (e.key == "Enter") {
+        searchUser = false
+        fetcherClick();
+    }
+})
