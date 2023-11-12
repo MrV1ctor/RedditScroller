@@ -499,7 +499,14 @@ function searchInput() {
 
 
 //if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
+// Get a reference to the subredditElement
+
 document.addEventListener("keydown", (e) => {
+    // If the event target is the subredditElement, return early
+    if (e.target === subredditElement) {
+        return;
+    }
+
     if (e.key == "n") {
         let wasChecked = document.getElementById("nsfw").checked;
         //hide the nsfw checkbox if it is not hidden, show it otherwise
@@ -513,7 +520,7 @@ document.addEventListener("keydown", (e) => {
             fetchRandomContent();
         }
     }
-})
+});
 
 const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce))");
 const details = document.querySelector(".object-and-details > details");
