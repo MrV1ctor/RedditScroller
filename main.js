@@ -160,6 +160,8 @@ function fetchContent() {
                 let pictureDiv = document.createElement("div");
 
                 let img;
+
+                let objectAndDetails;
                 
 
                 //if it is a video, add a video element
@@ -221,7 +223,7 @@ function fetchContent() {
                             this structure: https://css-tricks.com/pause-gif-details-summary/
                         */
 
-                        let objectAndDetails = document.createElement("div");
+                        objectAndDetails = document.createElement("div");
                         objectAndDetails.classList.add("object-and-details");
 
                         let staticImage = document.createElement("img");
@@ -251,7 +253,6 @@ function fetchContent() {
 
                         objectAndDetails.appendChild(details);
 
-                        div.appendChild(objectAndDetails);
 
                         if (body.data.children[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
                             staticImage.classList.add("nsfw");
@@ -333,6 +334,11 @@ function fetchContent() {
                     // parentDiv.appendChild(div);
                 }
 
+
+                if (objectAndDetails) {
+                    div.appendChild(objectAndDetails);
+                }
+
                 if (img != null) {
                     img.onerror = function () {
                         this.parentElement.remove();
@@ -341,7 +347,7 @@ function fetchContent() {
                         }
                     };
                 }
-
+                
                 div.appendChild(pictureDiv);
                 parentDiv.appendChild(div);
 
@@ -360,6 +366,7 @@ function fetchContent() {
             let div = document.createElement("div");
             div.style.height = window.innerHeight + "px";
             div.style.width = "100%";
+            
             parentDiv.appendChild(div);
 
 
@@ -536,5 +543,3 @@ subredditElement.addEventListener("keyup", (e) => {
         fetcherClick();
     }
 })
-
-//now just remove the empty ones (they may not have a div? but im adding it..?)
