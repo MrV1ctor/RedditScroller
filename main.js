@@ -587,6 +587,21 @@ function getPosts(posts) {
 
         div.appendChild(title);
         
+        //if in saved, add a subreddit link
+        if (showingSavedPage) {
+            let aSub = document.createElement("a");
+            aSub.href = `javascript:
+                    subreddit="${posts[i].data.subreddit}"; 
+                    subredditElement.value = subreddit;
+                    searchUser=false;
+                    after="";
+                    fetchContent();`;
+            let sub = document.createElement("h5");
+            sub.textContent = "r/" + posts[i].data.subreddit;
+            aSub.appendChild(sub);
+            div.appendChild(aSub);
+        }
+        
 
         if (isUser == "user") {
             let aSub = document.createElement("a");
