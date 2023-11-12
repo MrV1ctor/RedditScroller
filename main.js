@@ -202,10 +202,11 @@ function fetchContent() {
 
                     //add a function that fullscreens the image on click and then removes it on click again
                     objectAndDetails.addEventListener("click", () => {
-                        if (objectAndDetails.classList.contains("fullscreen")) {
-                            objectAndDetails.classList.remove("fullscreen");
+                        if (objectAndDetails.classList.contains("fullscreen-gif")) {
+                            objectAndDetails.classList.remove("fullscreen-gif");
+                            details.removeAttribute("open");
                         } else {
-                            objectAndDetails.classList.add("fullscreen");
+                            objectAndDetails.classList.add("fullscreen-gif");
                         }
                     })
 
