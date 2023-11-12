@@ -536,3 +536,5 @@ subredditElement.addEventListener("keyup", (e) => {
         fetcherClick();
     }
 })
+
+//now just remove the empty ones (they may not have a div? but im adding it..?)
