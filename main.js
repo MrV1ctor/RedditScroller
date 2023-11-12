@@ -450,7 +450,21 @@ function getPosts(posts) {
                     fetchRandomContent();
                 }
             };
-            pictureDiv.appendChild(video);
+
+
+
+            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                //add an element with a backdrop filter blur to blur the video
+                let blur = document.createElement("div");
+                blur.classList.add("blur");
+                blur.appendChild(video);
+                pictureDiv.appendChild(blur);
+                video.controls = false;
+            } else {
+                pictureDiv.appendChild(video);
+            }
+
+
 
             //add styling to the video to make it fit
             video.classList.add("video");
@@ -734,12 +748,3 @@ function dataEqualsData(data1, data2) {
 
 }
 
-
-/*
-TODO: 
-    videos are not blurred when nsfw is off
-
-    fix save button styling (add fontawesome to it?)
-
-    BUG: its not matching posts with cookied posts properly, even when they are the same
-*/
