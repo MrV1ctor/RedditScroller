@@ -1,45 +1,33 @@
-let autoscroll = false;
-let after = "";
-let searched = false;
-
 /* ELEMENTS */
-let subredditElement = document.querySelector("#subreddit");
-let fetcher = document.querySelector("#fetch")
-let randfetcher = document.querySelector("#fetch-random")
-let userfetcher = document.querySelector("#fetch-user")
+const subredditElement = document.querySelector("#subreddit");
+const fetcher = document.querySelector("#fetch");
+const randfetcher = document.querySelector("#fetch-random");
+const userfetcher = document.querySelector("#fetch-user");
+const subredditNameFiltersInput = document.querySelector("#subredditFilter");
+const subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter");
+const nsfwCheckbox = document.querySelector("#nsfw");
+const savedElement = document.querySelector("#saved");
+const ublockDetectionElement = document.querySelector("#pt-ext-root");
+const details = document.querySelector(".object-and-details > details");
 
-let searchUser = false;
-let subredditNameFiltersInput = document.querySelector("#subredditFilter")
-let subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter")
-let nsfwCheckbox = document.querySelector("#nsfw")
 
 /* INPUT */
-let subreddit;
-let subredditNameContainsFilters = [];
-let subredditNameFilters = [];
+const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
+let subreddit;                               // the subreddit currently viewed
+let subredditNameContainsFilters = [];       // filters subreddits whose name contains 
+let subredditNameFilters = [];               // filters subreddits whose name is
+let after = "";                              // the after parameter for the reddit api
+let autoscroll = false;                      // whether or not the scroller is active
+let searchUser = false;                      // whether or not the query is used for user or subreddit
+let searched = false;                        // whether the query currently displayed was a manual search
+let showingSavedPage = false;                // whether or not the saved page is showing
 
-function fetcherClick() {
-    if (subredditElement.value == "") {
-        subreddit = "ProgrammerHumor";
-        subredditElement.value = subreddit;
-        searchInput(searchUser);
-    } else if (subreddit != subredditElement.value) {
-        subreddit = subredditElement.value;
-        after = "";
-    }
-
-    searched = true;
-
-    fetchContent();
-}
 fetcher.addEventListener("click", () => {
-    searchUser = false
-    fetcherClick();
+    fetcherClick(false);
 });
 
 userfetcher.addEventListener("click", () => {
-    searchUser = true;
-    fetcherClick();
+    fetcherClick(true);
 })
 
 randfetcher.addEventListener("click", () => {
@@ -54,34 +42,7 @@ document.getElementById("autoscroll").addEventListener("click", () => {
 
 fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 
-/**
- * Fetches random content from a random subreddit
- * @param {boolean} nsfw Whether or not to fetch nsfw content
- * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
- * @param {string[]} nameFilters The filters to check if the subreddit is equal to
- * @returns {void}
- */
-function fetchRandomContent(nsfw = false, nameContainsFilters, nameFilters) {
-    //get a random line from "./subreddit parsed/parsedSubreddits.txt"
-    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
-        .then((response) => response.text()).then((body) => {
-            let lines = body.split("\n");
-            let randomLine = ""
-            do {
-                randomLine = lines[Math.floor(Math.random() * lines.length)];
-                console.log("invalid sub: " + randomLine)
-            } while (!checkSub(randomLine, nameContainsFilters, nameFilters));
-            subreddit = randomLine;
-            subredditElement.value = randomLine;
-            searchUser = false;
-            after = "";
-            searchInput(searchUser);
-            fetchContent();
-        });
-}
-
 /* FILTERS */
-
 subredditNameContainsFiltersInput.addEventListener("input", () => {
     subredditNameContainsFilters = subredditNameContainsFiltersInput.value.split("\n")
 })
@@ -90,203 +51,15 @@ subredditNameFiltersInput.addEventListener("input", () => {
     subredditNameFilters = subredditNameFiltersInput.value.split("\n");
 });
 
-/**
- * Checks if a subreddit is valid based on the filters provided.
- * The subreddit should not include the r/ or u/ part in it.
- * @param {string} sub The subreddit to check
- * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
- * @param {string[]} nameFilters The filters to check if the subreddit is equal to
- * @returns {boolean} Whether or not the subreddit is valid
- */
-function checkSub(sub, nameContainsFilters, nameFilters) {
-    for (let filter of nameContainsFilters) {
-        if (sub.includes(filter)) {
-            console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
-            return false;
-        }
-    }
-    for (let filter of nameFilters) {
-        if (sub === filter) {
-            console.log("Blocked by manual exclusion");
-            return false;
-        }
-    };
-
-    return true;
-}
-
-function fetchContent() {
-
-    showingSavedPage = false;
-    updateSavedButton();
-
-    console.log("fetching content...");
-
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+// if nsfw is clicked, and showing saved, refresh saved
+document.getElementById("nsfw").addEventListener("click", () => {
+    if (showingSavedPage) {
+        document.getElementById("saved").click();
     }
 
-    let isUser = searchUser ? "user" : "r";
+});
 
-    let parentDiv = document.createElement("div");
-    parentDiv.id = "content";
-    console.log("FETCHING FROM:")
-    console.log(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
-    //if this has a 429 error get the reply header and print the time
-    fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
-        if (response.status == 429) {
-            console.log(response.headers.get("x-ratelimit-reset"));
-        }
-        return response;
-    })
-        .then(response => response.json())
-
-        .then(body => {
-
-            console.log(body);
-
-            if (body.message == "Forbidden")
-                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-            after = body.data.after;
-
-            let posts = body.data.children;
-            getPosts(posts);
-
-
-            if (parentDiv.children.length == 1) {
-                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-            }
-
-
-            //infinite scroll stuff
-            document.getElementById('content').addEventListener('scroll', event => {
-                const { scrollHeight, scrollTop, clientHeight } = event.target;
-
-                // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-                if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                    // console.log("bottom reached");
-                    if (searched || isUser == "user") {
-                        fetchContent();
-                    }
-                    else {
-                        fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-                    }
-                }
-            });
-
-            //remove page blocker
-            if (document.getElementById("pt-ext-root")) {
-                document.getElementById("pt-ext-root").remove();
-            }
-        });
-
-}
-
-function pageScroll() {
-    // console.log("scrolling");
-    if (document.getElementById("content") && autoscroll)
-        document.getElementById("content").scrollBy(0, 1);
-    scrolldelay = setTimeout(pageScroll, 10);
-}
-
-//string similarity stuff
-function similarity(s1, s2) {
-    //if one contains the other, return 1
-    if (s1.includes(s2) || s2.includes(s1)) {
-        return 1;
-    }
-
-    var longer = s1;
-    var shorter = s2;
-    if (s1.length < s2.length) {
-        longer = s2;
-        shorter = s1;
-    }
-    var longerLength = longer.length;
-    if (longerLength == 0) {
-        return 1.0;
-    }
-    return (
-        (longerLength - editDistance(longer, shorter)) /
-        parseFloat(longerLength)
-    );
-}
-
-function editDistance(s1, s2) {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    var costs = new Array();
-    for (var i = 0; i <= s1.length; i++) {
-        var lastValue = i;
-        for (var j = 0; j <= s2.length; j++) {
-            if (i == 0) costs[j] = j;
-            else {
-                if (j > 0) {
-                    var newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                        newValue =
-                            Math.min(Math.min(newValue, lastValue), costs[j]) +
-                            1;
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                }
-            }
-        }
-        if (i > 0) costs[s2.length] = lastValue;
-    }
-    return costs[s2.length];
-}
-
-/**
- * Searches for subreddits similar to the input in the subreddit input and displays them
- * @param {boolean} searchUser Whether or not to search for users instead of subreddits
- * @returns {void}
- */
-function searchInput(searchForUser = false) {
-    console.log("searching");
-    let input = subredditElement.value;
-    let isUser = searchForUser ? "user" : "r";
-    let nsfw = document.getElementById("nsfw").checked;
-    let similar_subreddits = [];
-    let textBox = document.getElementById("similar-subreddits");
-
-    // reads the parsedSubreddits.txt file and finds the 5 most similar subreddits to display
-    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
-        .then((response) => response.text())
-        .then((body) => {
-            // find 5 similar subreddits, sorted by similarity
-            let lines = body.split("\n");
-            for (let i = 0; i < lines.length; i++) {
-                let line = lines[i];
-                let similarityScore = similarity(input, line);
-                similar_subreddits.push({ name: line, score: similarityScore });
-            }
-
-            similar_subreddits.sort((a, b) => (a.score > b.score ? -1 : 1));
-            similar_subreddits = similar_subreddits.slice(0, 10);
-
-            textBox.innerHTML = "";
-            for (let i = 0; i < similar_subreddits.length; i++) {
-                let a = document.createElement("a");
-                a.classList.add(["similarsub"])
-                a.href = `javascript:
-                        subreddit="${similar_subreddits[i].name}";
-                        subredditElement.value = subreddit;
-                        after="";
-                        fetchContent();`;
-                let h = document.createElement("h4");
-                h.textContent = similar_subreddits[i].name;
-                a.appendChild(h);
-                textBox.appendChild(a);
-            }
-        });
-}
-//   testing codespace branching whatever
-
-//if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
-// Get a reference to the subredditElement
-
+// if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
 document.addEventListener("keydown", (e) => {
     // If the event target is the subredditElement, return early
     if (e.target === subredditElement) {
@@ -304,66 +77,38 @@ document.addEventListener("keydown", (e) => {
 
         //if showing saved reload saved
         if (showingSavedPage) {
-            document.getElementById("saved").click();
+            savedElement.click();
         }
         else if (wasChecked) {//otherwise fetch random
             fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
     }
 });
-// //if x key pressed, clear the posts (cookies)
-// document.addEventListener("keydown", (e) => {
-//     // If the event target is the subredditElement, return early
-//     if (e.target === subredditElement) {
-//         return;
-//     }
 
-//     if (e.key == "x") {
+// if x key pressed, clear the posts (cookies)
+/*document.addEventListener("keydown", (e) => {
+    // If the event target is the subredditElement, return early
+    if (e.target === subredditElement) {
+        return;
+    }
 
-//         //clear the cookies for the posts only
-//         localStorage.removeItem("posts");
+    if (e.key == "x") {
 
-//     }
-// });
+        //clear the cookies for the posts only
+        localStorage.removeItem("posts");
 
-// const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce))");
-const details = document.querySelector(".object-and-details > details");
-
-// if (mediaQuery.matches) {
-//   details.removeAttribute("open");
-// }
-
-
+    }
+});*/
 
 //if enter clicked while in the subreddit input, search for the subreddit
 subredditElement.addEventListener("keyup", (e) => {
     if (e.key == "Enter") {
-        searchUser = false
-        fetcherClick();
+        fetcherClick(false);
     }
 })
 
-/**
- * Updates the content of the saved button based on whether or not the saved page is showing
- * @returns {void}
- */
-function updateSavedButton() {
-
-    if (showingSavedPage) {
-        // document.getElementById("saved").textContent = "Refresh Saved";
-        document.getElementById("saved").innerHTML = "Refresh Saved <i class='searchButtonIcon fa-solid fa-sync'></i>";
-    } else {
-        // set the content to "Open Saved <i class="searchButtonIcon fa-solid fa-bookmark"></i>"
-        // document.getElementById("saved").textContent = "Open Saved";
-        document.getElementById("saved").innerHTML = "Open Saved <i class='searchButtonIcon fa-solid fa-bookmark'></i>";
-    }
-
-
-}
-
 
 // when saved button is clicked, clear the posts and add the posts from the cookie
-let showingSavedPage = false;
 document.getElementById("saved").addEventListener("click", () => {
 
     showingSavedPage = true;
@@ -391,7 +136,6 @@ document.getElementById("saved").addEventListener("click", () => {
         document.getElementById("content").remove();
     }
 
-
     //reverse the order of posts
     posts.reverse();
 
@@ -406,6 +150,278 @@ document.getElementById("saved").addEventListener("click", () => {
     getPosts(posts);
 
 });
+
+/* FUNCTIONS */
+
+/**
+ * Fetches random content from a random subreddit
+ * @param {boolean} nsfw Whether or not to fetch nsfw content
+ * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
+ * @param {string[]} nameFilters The filters to check if the subreddit is equal to
+ * @returns {void}
+ */
+function fetchRandomContent(nsfw = false, nameContainsFilters, nameFilters) {
+    //get a random line from "./subreddit parsed/parsedSubreddits.txt"
+    fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
+        .then((response) => response.text()).then((body) => {
+            let lines = body.split("\n");
+            let randomLine = ""
+            do {
+                randomLine = lines[Math.floor(Math.random() * lines.length)];
+                console.log("invalid sub: " + randomLine)
+            } while (!checkSub(randomLine, nameContainsFilters, nameFilters));
+            subreddit = randomLine;
+            subredditElement.value = randomLine;
+            searchUser = false;
+            after = "";
+            searchInput(subreddit, nsfwCheckbox.checked);
+            fetchContent();
+        });
+}
+
+/**
+ * Sets the subreddit to view and initializes everything.
+ * @param {boolean} queryUser Whether or not the query is for a user
+ * @returns {void}
+ */
+function fetcherClick(queryUser) {
+    searchUser = queryUser;
+    if (subredditElement.value == "") {
+        subreddit = fallbackSubreddit;
+        subredditElement.value = subreddit;
+        searchInput(subreddit, nsfwCheckbox.checked);
+    } else if (subreddit != subredditElement.value) {
+        subreddit = subredditElement.value;
+        after = "";
+    }
+
+    searched = true;
+    fetchContent();
+}
+
+/**
+ * Checks if a subreddit is valid based on the filters provided.
+ * The subreddit should not include the r/ or u/ part in it.
+ * @param {string} sub The subreddit to check
+ * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
+ * @param {string[]} nameFilters The filters to check if the subreddit is equal to
+ * @returns {boolean} Whether or not the subreddit is valid
+ */
+function checkSub(sub, nameContainsFilters, nameFilters) {
+    for (let filter of nameContainsFilters) {
+        if (sub.includes(filter)) {
+            console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
+            return false;
+        }
+    }
+    for (let filter of nameFilters) {
+        if (sub === filter) {
+            console.log("Blocked by manual exclusion");
+            return false;
+        }
+    };
+
+    return true;
+}
+
+/**
+ * Fetches and displays content.
+ * @returns {void}
+ */
+function fetchContent() {
+
+    showingSavedPage = false;
+    updateSavedButton();
+
+    console.log("fetching content...");
+
+    // ublock fix
+    while (document.getElementById("content")) {
+        document.getElementById("content").remove();
+    }
+
+    let isUser = searchUser ? "user" : "r";
+
+    let parentDiv = document.createElement("div");
+    parentDiv.id = "content";
+
+    console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
+    //if this has a 429 error get the reply header and print the time
+    fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
+        if (response.status == 429) {
+            console.log(response.headers.get("x-ratelimit-reset"));
+        }
+        return response;
+    }).then(response => response.json()).then(body => {
+
+            console.log(body);
+
+            if (body.message == "Forbidden")
+                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+            after = body.data.after;
+
+            let posts = body.data.children;
+            getPosts(posts);
+
+            if (parentDiv.children.length == 1) {
+                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+            }
+
+            //infinite scroll stuff
+            document.getElementById("content").addEventListener('scroll', event => {
+                const { scrollHeight, scrollTop, clientHeight } = event.target;
+
+                // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
+                if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
+                    // console.log("bottom reached");
+                    if (searched || isUser == "user") {
+                        fetchContent();
+                    } else {
+                        fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+                    }
+                }
+            });
+
+            // more ublock tomfoolery
+            if (ublockDetectionElement) {
+                ublockDetectionElement.remove();
+            }
+        });
+}
+
+/**
+ * Start the automating scrolling, if autoscroll enabled.
+ * @returns {void}
+ */
+function pageScroll() {
+    // console.log("scrolling");
+    if (document.getElementById("content") && autoscroll)
+        document.getElementById("content").scrollBy(0, 1);
+    scrolldelay = setTimeout(pageScroll, 10);
+}
+
+/**
+ * Returns a normalized value representing the similarity between two strings.
+ * Used for searching and finding results for subreddit queries against the list.
+ * @param {string} s1 The first string
+ * @param {string} s2 The second string
+ * @returns {number} The similarity, between 0.0 and 1.0
+ */
+function similarity(s1, s2) {
+    //if one contains the other, return 1
+    if (s1.includes(s2) || s2.includes(s1)) {
+        return 1.0;
+    }
+
+    var longer = s1;
+    var shorter = s2;
+    if (s1.length < s2.length) {
+        longer = s2;
+        shorter = s1;
+    }
+    var longerLength = longer.length;
+    if (longerLength == 0) {
+        return 1.0;
+    }
+    return (
+        (longerLength - editDistance(longer, shorter)) /
+        parseFloat(longerLength)
+    );
+}
+
+/**
+ * Levenshtein distance between two strings. Helper function for `similarity(s1:string, s2:string)`.
+ * @param {string} s1 The first string
+ * @param {string} s2 The second string
+ * @returns {number} The amount of edits between two strings. A non-negative integer.
+ */
+function editDistance(s1, s2) {
+    s1 = s1.toLowerCase();
+    s2 = s2.toLowerCase();
+
+    var costs = new Array();
+    for (var i = 0; i <= s1.length; i++) {
+        var lastValue = i;
+        for (var j = 0; j <= s2.length; j++) {
+            if (i == 0) costs[j] = j;
+            else
+                if (j > 0) {
+                    var newValue = costs[j - 1];
+                    if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                    costs[j - 1] = lastValue;
+                    lastValue = newValue;
+                }
+            
+        }
+        if (i > 0) costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+}
+
+/**
+ * Searches for subreddits similar to the input in the subreddit input and displays them
+ * @param {string} query The username/subreddit to search for
+ * @param {boolean} queryNSFW Whether or not to search for nsfw subs
+ * @returns {void}
+ */
+function searchInput(query, queryNSFW) {
+    console.log("searching");
+    let similar_subreddits = [];
+    let textBox = document.getElementById("similar-subreddits");
+
+    // reads the parsedSubreddits.txt file and finds the 5 most similar subreddits to display
+    fetch("./subreddit parsed/" + (queryNSFW ? "nsfw" : "") + "parsedSubreddits.txt")
+        .then((response) => response.text())
+        .then((body) => {
+
+            // find 5 similar subreddits, sorted by similarity
+            let lines = body.split("\n");
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                let similarityScore = similarity(query, line);
+                similar_subreddits.push({ name: line, score: similarityScore });
+            }
+
+            // prepare the list
+            similar_subreddits.sort((a, b) => (a.score > b.score ? -1 : 1));
+            similar_subreddits = similar_subreddits.slice(0, 10);
+
+            // reset the similarsubs area and rebuild it
+            textBox.innerHTML = "";
+            for (let i = 0; i < similar_subreddits.length; i++) {
+                let a = document.createElement("a");
+                a.classList.add(["similarsub"])
+                a.href = `javascript:
+                        subreddit="${similar_subreddits[i].name}";
+                        subredditElement.value = subreddit;
+                        after="";
+                        fetchContent();`;
+                let h = document.createElement("h4");
+                h.textContent = similar_subreddits[i].name;
+                a.appendChild(h);
+                textBox.appendChild(a);
+            }
+
+        });
+}
+
+/**
+ * Updates the content of the saved button based on whether or not the saved page is showing
+ * @returns {void}
+ */
+function updateSavedButton() {
+
+    if (showingSavedPage) {
+        // document.getElementById("saved").textContent = "Refresh Saved";
+        savedElement.innerHTML = "Refresh Saved <i class='searchButtonIcon fa-solid fa-sync'></i>";
+    } else {
+        // set the content to "Open Saved <i class="searchButtonIcon fa-solid fa-bookmark"></i>"
+        // document.getElementById("saved").textContent = "Open Saved";
+        savedElement.innerHTML = "Open Saved <i class='searchButtonIcon fa-solid fa-bookmark'></i>";
+    }
+
+}
 
 /**
  * Dynamically creates the posts from the posts array and appends them to the body of the document
@@ -605,8 +621,6 @@ function getPosts(posts) {
             }
 
         }
-        //
-
 
         // console.log(posts[i].data.url_overridden_by_dest);
         title.textContent = posts[i].data.title;
@@ -619,7 +633,6 @@ function getPosts(posts) {
             aSub.href = `javascript:
                     subreddit="${posts[i].data.subreddit}"; 
                     subredditElement.value = subreddit;
-                    searchUser=false;
                     after="";
                     fetchContent();`;
             let sub = document.createElement("h5");
@@ -634,7 +647,6 @@ function getPosts(posts) {
             aSub.href = `javascript:
                     subreddit="${posts[i].data.subreddit}";
                     subredditElement.value = subreddit; 
-                    searchUser=false;
                     after="";
                     fetchContent();`;
             let sub = document.createElement("h5");
@@ -646,9 +658,8 @@ function getPosts(posts) {
             aUser.href = `javascript:
                     subreddit="${posts[i].data.author}";
                     subredditElement.value = subreddit;
-                    searchUser=true;
                     after="";
-                    fetcherClick();`;
+                    fetcherClick(true);`;
             let user = document.createElement("h5");
             user.textContent = "u/" + posts[i].data.author;
             aUser.appendChild(user);
@@ -810,17 +821,5 @@ function dataEqualsData(data1, data2) {
 
 }
 
-// if nsfw is clicked, and showing saved, refresh saved
-document.getElementById("nsfw").addEventListener("click", () => {
-    if (showingSavedPage) {
-        document.getElementById("saved").click();
-    }
-
-})
-
-/*
-TODO: 
-    make cookies more storage efficient
-        only store whatever is used in dataEqualsData ig?
-
-*/
+// TODO: make cookies more storage efficient
+// TODO: only store whatever is used in dataEqualsData ig?
