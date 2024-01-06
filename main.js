@@ -11,15 +11,18 @@ let userfetcher = document.querySelector("#fetch-user")
 let searchUser = false;
 let subredditNameFiltersInput = document.querySelector("#subredditFilter")
 let subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter")
+let nsfwCheckbox = document.querySelector("#nsfw")
 
 /* INPUT */
 let subreddit;
+let subredditNameContainsFilters = [];
+let subredditNameFilters = [];
 
 function fetcherClick() {
     if (subredditElement.value == "") {
         subreddit = "ProgrammerHumor";
         subredditElement.value = subreddit;
-        searchInput();
+        searchInput(searchUser);
     } else if (subreddit != subredditElement.value) {
         subreddit = subredditElement.value;
         after = "";
@@ -41,24 +44,25 @@ userfetcher.addEventListener("click", () => {
 
 randfetcher.addEventListener("click", () => {
     searched = false;
-    fetchRandomContent();
+    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 });
-
-// document.getElementById("nsfw").addEventListener("click", () => {
-//     fetchRandomContent();
-// })
 
 document.getElementById("autoscroll").addEventListener("click", () => {
     pageScroll();
     autoscroll = !autoscroll;
 });
 
-fetchRandomContent();
+fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 
-//fetch stuff
-function fetchRandomContent() {
+/**
+ * Fetches random content from a random subreddit
+ * @param {boolean} nsfw Whether or not to fetch nsfw content
+ * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
+ * @param {string[]} nameFilters The filters to check if the subreddit is equal to
+ * @returns {void}
+ */
+function fetchRandomContent(nsfw = false, nameContainsFilters, nameFilters) {
     //get a random line from "./subreddit parsed/parsedSubreddits.txt"
-    let nsfw = document.getElementById("nsfw").checked;
     fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
         .then((response) => response.text()).then((body) => {
             let lines = body.split("\n");
@@ -66,20 +70,17 @@ function fetchRandomContent() {
             do {
                 randomLine = lines[Math.floor(Math.random() * lines.length)];
                 console.log("invalid sub: " + randomLine)
-            } while (!checkSub(randomLine));
+            } while (!checkSub(randomLine, nameContainsFilters, nameFilters));
             subreddit = randomLine;
             subredditElement.value = randomLine;
             searchUser = false;
             after = "";
-            searchInput();
+            searchInput(searchUser);
             fetchContent();
         });
 }
 
 /* FILTERS */
-
-let subredditNameContainsFilters = [];
-let subredditNameFilters = [];
 
 subredditNameContainsFiltersInput.addEventListener("input", () => {
     subredditNameContainsFilters = subredditNameContainsFiltersInput.value.split("\n")
@@ -89,14 +90,22 @@ subredditNameFiltersInput.addEventListener("input", () => {
     subredditNameFilters = subredditNameFiltersInput.value.split("\n");
 });
 
-function checkSub(sub) {
-    for (let filter of subredditNameContainsFilters) {
+/**
+ * Checks if a subreddit is valid based on the filters provided.
+ * The subreddit should not include the r/ or u/ part in it.
+ * @param {string} sub The subreddit to check
+ * @param {string[]} nameContainsFilters The filters to check if the subreddit contains
+ * @param {string[]} nameFilters The filters to check if the subreddit is equal to
+ * @returns {boolean} Whether or not the subreddit is valid
+ */
+function checkSub(sub, nameContainsFilters, nameFilters) {
+    for (let filter of nameContainsFilters) {
         if (sub.includes(filter)) {
             console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
             return false;
         }
     }
-    for (let filter of subredditNameFilters) {
+    for (let filter of nameFilters) {
         if (sub === filter) {
             console.log("Blocked by manual exclusion");
             return false;
@@ -137,7 +146,7 @@ function fetchContent() {
             console.log(body);
 
             if (body.message == "Forbidden")
-                fetchRandomContent();
+                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
             after = body.data.after;
 
             let posts = body.data.children;
@@ -145,7 +154,7 @@ function fetchContent() {
 
 
             if (parentDiv.children.length == 1) {
-                fetchRandomContent();
+                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
             }
 
 
@@ -160,7 +169,7 @@ function fetchContent() {
                         fetchContent();
                     }
                     else {
-                        fetchRandomContent();
+                        fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                     }
                 }
             });
@@ -229,18 +238,24 @@ function editDistance(s1, s2) {
     return costs[s2.length];
 }
 
-function searchInput() {
+/**
+ * Searches for subreddits similar to the input in the subreddit input and displays them
+ * @param {boolean} searchUser Whether or not to search for users instead of subreddits
+ * @returns {void}
+ */
+function searchInput(searchForUser = false) {
     console.log("searching");
     let input = subredditElement.value;
-    let isUser = searchUser ? "user" : "r";
+    let isUser = searchForUser ? "user" : "r";
     let nsfw = document.getElementById("nsfw").checked;
     let similar_subreddits = [];
     let textBox = document.getElementById("similar-subreddits");
 
+    // reads the parsedSubreddits.txt file and finds the 5 most similar subreddits to display
     fetch("./subreddit parsed/" + (nsfw ? "nsfw" : "") + "parsedSubreddits.txt")
         .then((response) => response.text())
         .then((body) => {
-            //find 5 similar subreddits, sorted by similarity
+            // find 5 similar subreddits, sorted by similarity
             let lines = body.split("\n");
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
@@ -269,14 +284,6 @@ function searchInput() {
 }
 //   testing codespace branching whatever
 
-/*
-  notes
-
-  theres is a property is_gallery which is eitehr true or false
-
-*/
-
-
 //if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
 // Get a reference to the subredditElement
 
@@ -294,13 +301,13 @@ document.addEventListener("keydown", (e) => {
         document.getElementById("nsfw-label").hidden = !document.getElementById("nsfw-label").hidden;
 
         document.getElementById("nsfw").checked = false;
-        
+
         //if showing saved reload saved
         if (showingSavedPage) {
             document.getElementById("saved").click();
         }
         else if (wasChecked) {//otherwise fetch random
-            fetchRandomContent();
+            fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
     }
 });
@@ -336,6 +343,10 @@ subredditElement.addEventListener("keyup", (e) => {
     }
 })
 
+/**
+ * Updates the content of the saved button based on whether or not the saved page is showing
+ * @returns {void}
+ */
 function updateSavedButton() {
 
     if (showingSavedPage) {
@@ -396,6 +407,21 @@ document.getElementById("saved").addEventListener("click", () => {
 
 });
 
+/**
+ * Dynamically creates the posts from the posts array and appends them to the body of the document
+ * @param {Array} posts The array of posts to create
+ * @property {boolean} posts[].data.is_gallery Whether or not the post is a gallery
+ * @property {string} posts[].data.url_overridden_by_dest The url of the post
+ * @property {string} posts[].data.thumbnail The thumbnail of the post
+ * @property {string} posts[].data.media.reddit_video.fallback_url The fallback url of the video
+ * @property {string} posts[].data.preview.reddit_video_preview.fallback_url The fallback url of the video
+ * @property {boolean} posts[].data.over_18 Whether or not the post is nsfw
+ * @property {string} posts[].data.post_hint The type of post
+ * @property {string} posts[].data.author The author of the post
+ * @property {string} posts[].data.subreddit The subreddit of the post
+ * @property {string} posts[].data.title The title of the post
+ * @returns {void}
+ */
 function getPosts(posts) {
 
     let isUser = searchUser ? "user" : "r";
@@ -430,7 +456,7 @@ function getPosts(posts) {
         let img;
 
         let objectAndDetails;
-        
+
 
         //if it is a video, add a video element
         if (posts[i].data.post_hint == "rich:video" || posts[i].data.is_video == true) {
@@ -439,8 +465,8 @@ function getPosts(posts) {
             video.autoplay = false;
             video.loop = true;
             // video.muted = true;
-            
-            
+
+
             try {
                 video.src = posts[i].data.media.reddit_video.fallback_url;
             } catch (error) {
@@ -454,14 +480,14 @@ function getPosts(posts) {
             }
 
 
-            
+
             // console.log("video.src")
             // console.log(video.src)
 
             video.onerror = function () {
                 this.parentElement.remove();
                 if (parentDiv.children.length == 1) {
-                    fetchRandomContent();
+                    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
 
@@ -577,7 +603,7 @@ function getPosts(posts) {
                     }
                 })
             }
-        
+
         }
         //
 
@@ -586,7 +612,7 @@ function getPosts(posts) {
         title.textContent = posts[i].data.title;
 
         div.appendChild(title);
-        
+
         //if in saved, add a subreddit link
         if (showingSavedPage) {
             let aSub = document.createElement("a");
@@ -601,7 +627,7 @@ function getPosts(posts) {
             aSub.appendChild(sub);
             div.appendChild(aSub);
         }
-        
+
 
         if (isUser == "user") {
             let aSub = document.createElement("a");
@@ -642,13 +668,13 @@ function getPosts(posts) {
             img.onerror = function () {
                 this.parentElement.remove();
                 if (parentDiv.children.length == 1) {
-                    fetchRandomContent();
+                    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
         }
-        
-        
-        
+
+
+
 
         //append to parentdiv a button to save a post by getting the url of the post and saving it to a cookie
         let saveButton = document.createElement("input");
@@ -669,9 +695,9 @@ function getPosts(posts) {
         }
 
         saveButton.addEventListener("click", () => {
-            
+
             if (saveButton.checked) {
-            
+
                 //save the post
                 let data = posts[i].data;
                 let post = { data: data };
@@ -710,9 +736,9 @@ function getPosts(posts) {
         div.appendChild(pictureDiv);
 
 
-            
-        
-        
+
+
+
         parentDiv.appendChild(div);
 
 
@@ -730,7 +756,7 @@ function getPosts(posts) {
     let div = document.createElement("div");
     div.style.height = window.innerHeight + "px";
     div.style.width = "100%";
-    
+
     parentDiv.appendChild(div);
 
 
@@ -739,9 +765,16 @@ function getPosts(posts) {
 
 }
 
+/**
+ * Returns whether or not the data of two posts is equal
+ * The data represents the data property of a post object
+ * @param {*} data1 The data of the first post
+ * @param {*} data2 The data of the second post
+ * @returns {boolean} Whether or not the data of the two posts is equal
+ */
 function dataEqualsData(data1, data2) {
 
-    
+
     //check urls based on if theyre gifs / videos or not
     if (data1.url_overridden_by_dest == undefined && data2.url_overridden_by_dest == undefined) {
         //if both are videos, check the fallback url
@@ -782,7 +815,7 @@ document.getElementById("nsfw").addEventListener("click", () => {
     if (showingSavedPage) {
         document.getElementById("saved").click();
     }
-    
+
 })
 
 /*
