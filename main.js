@@ -3,13 +3,13 @@ const subredditElement = document.querySelector("#subreddit");
 const fetcher = document.querySelector("#fetch");
 const randfetcher = document.querySelector("#fetch-random");
 const userfetcher = document.querySelector("#fetch-user");
-const subredditNameFiltersInput = document.querySelector("#subredditFilter");
-const subredditNameContainsFiltersInput = document.querySelector("#subredditContentFilter");
-const nsfwCheckbox = document.querySelector("#nsfw");
+const filtersInputElement = document.querySelector("#subredditFilter");
+const containsFiltersInputElement = document.querySelector("#subredditContentFilter");
+const nsfwCheckboxCheckbox = document.querySelector("#nsfw");
 const savedElement = document.querySelector("#saved");
 const ublockDetectionElement = document.querySelector("#pt-ext-root");
-const details = document.querySelector(".object-and-details > details");
-
+const detailsElement = document.querySelector(".object-and-details > details");
+const autoscrollElement = document.querySelector("#autoscroll");
 
 /* INPUT */
 const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
@@ -22,94 +22,81 @@ let searchUser = false;                      // whether or not the query is used
 let searched = false;                        // whether the query currently displayed was a manual search
 let showingSavedPage = false;                // whether or not the saved page is showing
 
-fetcher.addEventListener("click", () => {
-    fetcherClick(false);
-});
+fetcher.onclick = fetcherClick(false);
 
-userfetcher.addEventListener("click", () => {
-    fetcherClick(true);
-})
+userfetcher.onclick = fetcherClick(true);
 
-randfetcher.addEventListener("click", () => {
+randfetcher.onclick = () => {
     searched = false;
-    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-});
+    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+};
 
-document.getElementById("autoscroll").addEventListener("click", () => {
+autoscrollElement.onclick = () => {
     pageScroll();
     autoscroll = !autoscroll;
-});
+};
 
-fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 
 /* FILTERS */
-subredditNameContainsFiltersInput.addEventListener("input", () => {
-    subredditNameContainsFilters = subredditNameContainsFiltersInput.value.split("\n")
-})
+containsFiltersInputElement.addEventListener("input", () => {
+    subredditNameContainsFilters = containsFiltersInputElement.value.split("\n")
+});
 
-subredditNameFiltersInput.addEventListener("input", () => {
-    subredditNameFilters = subredditNameFiltersInput.value.split("\n");
+filtersInputElement.addEventListener("input", () => {
+    subredditNameFilters = filtersInputElement.value.split("\n");
 });
 
 // if nsfw is clicked, and showing saved, refresh saved
-document.getElementById("nsfw").addEventListener("click", () => {
+nsfwCheckboxCheckbox.onclick = () => {
     if (showingSavedPage) {
         document.getElementById("saved").click();
     }
+};
 
-});
-
-// if n key pressed either add or remove the nsfw toggle toggle it off and switch to a non-nsfw subreddit if current one is nsfw.
-document.addEventListener("keydown", (e) => {
-    // If the event target is the subredditElement, return early
-    if (e.target === subredditElement) {
-        return;
-    }
-
-    if (e.key == "n") {
-        let wasChecked = document.getElementById("nsfw").checked;
-        //hide the nsfw checkbox if it is not hidden, show it otherwise
-        document.getElementById("nsfw").hidden = !document.getElementById("nsfw").hidden;
-        //also remove the label
-        document.getElementById("nsfw-label").hidden = !document.getElementById("nsfw-label").hidden;
-
-        document.getElementById("nsfw").checked = false;
-
-        //if showing saved reload saved
-        if (showingSavedPage) {
-            savedElement.click();
+document.addEventListener("keydown", 
+    /**
+     * Manages hotkeys and other keyboard events on the document.
+     * @param {KeyboardEvent} e
+     * @returns {void}
+     */
+    function(e) {
+        // If the event target is the subredditElement, return early
+        if (e.target === subredditElement) {
+            return;
         }
-        else if (wasChecked) {//otherwise fetch random
-            fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+
+        if (e.key == "n") {
+            let wasChecked = document.getElementById("nsfw").checked;
+            // hide the nsfw checkbox if it is not hidden, show it otherwise
+            document.getElementById("nsfw").hidden = !document.getElementById("nsfw").hidden;
+            // also remove the label
+            document.getElementById("nsfw-label").hidden = !document.getElementById("nsfw-label").hidden;
+
+            document.getElementById("nsfw").checked = false;
+
+            // if showing saved, reload saved
+            if (showingSavedPage) {
+                savedElement.click();
+            } else if (wasChecked) { // otherwise fetch random
+                fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+            }
+        } else if (e.key == "x") {
+            // clear the cookies for the posts only
+            localStorage.removeItem("posts");
         }
     }
-});
+);
 
-// if x key pressed, clear the posts (cookies)
-/*document.addEventListener("keydown", (e) => {
-    // If the event target is the subredditElement, return early
-    if (e.target === subredditElement) {
-        return;
-    }
-
-    if (e.key == "x") {
-
-        //clear the cookies for the posts only
-        localStorage.removeItem("posts");
-
-    }
-});*/
-
-//if enter clicked while in the subreddit input, search for the subreddit
+// if enter clicked while in the subreddit input, search for the subreddit
 subredditElement.addEventListener("keyup", (e) => {
     if (e.key == "Enter") {
         fetcherClick(false);
     }
-})
-
+});
 
 // when saved button is clicked, clear the posts and add the posts from the cookie
-document.getElementById("saved").addEventListener("click", () => {
+savedElement.onclick = () => {
 
     showingSavedPage = true;
 
@@ -149,7 +136,7 @@ document.getElementById("saved").addEventListener("click", () => {
 
     getPosts(posts);
 
-});
+};
 
 /* FUNCTIONS */
 
@@ -174,7 +161,7 @@ function fetchRandomContent(nsfw = false, nameContainsFilters, nameFilters) {
             subredditElement.value = randomLine;
             searchUser = false;
             after = "";
-            searchInput(subreddit, nsfwCheckbox.checked);
+            searchInput(subreddit, nsfwCheckboxCheckbox.checked);
             fetchContent();
         });
 }
@@ -189,7 +176,7 @@ function fetcherClick(queryUser) {
     if (subredditElement.value == "") {
         subreddit = fallbackSubreddit;
         subredditElement.value = subreddit;
-        searchInput(subreddit, nsfwCheckbox.checked);
+        searchInput(subreddit, nsfwCheckboxCheckbox.checked);
     } else if (subreddit != subredditElement.value) {
         subreddit = subredditElement.value;
         after = "";
@@ -254,39 +241,39 @@ function fetchContent() {
         return response;
     }).then(response => response.json()).then(body => {
 
-            console.log(body);
+        console.log(body);
 
-            if (body.message == "Forbidden")
-                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-            after = body.data.after;
+        if (body.message == "Forbidden")
+            fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+        after = body.data.after;
 
-            let posts = body.data.children;
-            getPosts(posts);
+        let posts = body.data.children;
+        getPosts(posts);
 
-            if (parentDiv.children.length == 1) {
-                fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-            }
+        if (parentDiv.children.length == 1) {
+            fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+        }
 
-            //infinite scroll stuff
-            document.getElementById("content").addEventListener('scroll', event => {
-                const { scrollHeight, scrollTop, clientHeight } = event.target;
+        //infinite scroll stuff
+        document.getElementById("content").addEventListener('scroll', event => {
+            const { scrollHeight, scrollTop, clientHeight } = event.target;
 
-                // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-                if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                    // console.log("bottom reached");
-                    if (searched || isUser == "user") {
-                        fetchContent();
-                    } else {
-                        fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-                    }
+            // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
+            if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
+                // console.log("bottom reached");
+                if (searched || isUser == "user") {
+                    fetchContent();
+                } else {
+                    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
-            });
-
-            // more ublock tomfoolery
-            if (ublockDetectionElement) {
-                ublockDetectionElement.remove();
             }
         });
+
+        // more ublock tomfoolery
+        if (ublockDetectionElement) {
+            ublockDetectionElement.remove();
+        }
+    });
 }
 
 /**
@@ -294,7 +281,7 @@ function fetchContent() {
  * @returns {void}
  */
 function pageScroll() {
-    // console.log("scrolling");
+    // if still scrolling
     if (document.getElementById("content") && autoscroll)
         document.getElementById("content").scrollBy(0, 1);
     scrolldelay = setTimeout(pageScroll, 10);
@@ -352,7 +339,7 @@ function editDistance(s1, s2) {
                     costs[j - 1] = lastValue;
                     lastValue = newValue;
                 }
-            
+
         }
         if (i > 0) costs[s2.length] = lastValue;
     }
@@ -441,7 +428,6 @@ function updateSavedButton() {
 function getPosts(posts) {
 
     let isUser = searchUser ? "user" : "r";
-
     let parentDiv = document.createElement("div");
     parentDiv.id = "content";
 
@@ -452,9 +438,7 @@ function getPosts(posts) {
 
         // if (posts[i].data.post_hint == "image") {
         //if it s a gallery or not a picture, skip it
-        if (posts[i].data.is_gallery == true)
-            continue;
-        if (posts[i].data.url_overridden_by_dest == undefined)
+        if (posts[i].data.is_gallery == true || posts[i].data.url_overridden_by_dest == undefined)
             continue;
         // if (posts[i].data.post_hint == "rich:video" || posts[i].data.is_video == true)
         //     continue;
@@ -463,16 +447,11 @@ function getPosts(posts) {
         div.classList.add(["post"])
 
         let title = document.createElement("h4");
-
         let imageSrc = posts[i].data.url_overridden_by_dest;
         let thumbnailImageSrc = posts[i].data.thumbnail;
-
         let pictureDiv = document.createElement("div");
-
         let img;
-
         let objectAndDetails;
-
 
         //if it is a video, add a video element
         if (posts[i].data.post_hint == "rich:video" || posts[i].data.is_video == true) {
@@ -481,7 +460,6 @@ function getPosts(posts) {
             video.autoplay = false;
             video.loop = true;
             // video.muted = true;
-
 
             try {
                 video.src = posts[i].data.media.reddit_video.fallback_url;
@@ -495,22 +473,18 @@ function getPosts(posts) {
                 }
             }
 
-
-
             // console.log("video.src")
             // console.log(video.src)
 
             video.onerror = function () {
                 this.parentElement.remove();
                 if (parentDiv.children.length == 1) {
-                    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+                    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
 
-
-
             if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                //add an element with a backdrop filter blur to blur the video
+                // add an element with a backdrop filter blur to blur the video
                 let blur = document.createElement("div");
                 blur.classList.add("blur");
                 blur.appendChild(video);
@@ -520,9 +494,7 @@ function getPosts(posts) {
                 pictureDiv.appendChild(video);
             }
 
-
-
-            //add styling to the video to make it fit
+            // add styling to the video to make it fit
             video.classList.add("video");
 
             //make it fullscreenable with the button
@@ -538,87 +510,73 @@ function getPosts(posts) {
             //     }
             // });
 
+        } else if (imageSrc.endsWith(".gif")) {
+
+            objectAndDetails = document.createElement("div");
+            objectAndDetails.classList.add("object-and-details");
+
+            let staticImage = document.createElement("img");
+            staticImage.src = thumbnailImageSrc;
+            staticImage.alt = "static image";
+            staticImage.loading = "lazy";
+            objectAndDetails.appendChild(staticImage);
+
+            let details = document.createElement("details");
+
+            let summary = document.createElement("summary");
+            summary.setAttribute("role", "button");
+            summary.setAttribute("aria-label", "static image");
+            details.appendChild(summary);
+
+            let objectAndDetails1 = document.createElement("div");
+            objectAndDetails1.classList.add("object-and-details1");
+
+            let animatedImage = document.createElement("img");
+            animatedImage.src = imageSrc;
+            animatedImage.alt = "animated image";
+            animatedImage.loading = "lazy";
+            objectAndDetails1.appendChild(animatedImage);
+
+            details.appendChild(objectAndDetails1);
+
+            objectAndDetails.appendChild(details);
+
+            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                staticImage.classList.add("nsfw");
+                animatedImage.classList.add("nsfw");
+            }
+
+            //add a function that fullscreens the image on click and then removes it on click again
+            objectAndDetails.addEventListener("click", () => {
+                if (objectAndDetails.classList.contains("fullscreen-gif")) {
+                    objectAndDetails.classList.remove("fullscreen-gif");
+                    details.removeAttribute("open");
+                } else {
+                    objectAndDetails.classList.add("fullscreen-gif");
+                }
+            });
+
+            pictureDiv.appendChild(objectAndDetails);
+
         } else {
 
+            //just have the image added no need for gif shenanigans
+            img = document.createElement("img");
+            pictureDiv.appendChild(img);
+            img.src = imageSrc;
 
-            if (imageSrc.endsWith(".gif")) {
-                //add the following structure
-                /**
-                    this structure: https://css-tricks.com/pause-gif-details-summary/
-                */
-
-                objectAndDetails = document.createElement("div");
-                objectAndDetails.classList.add("object-and-details");
-
-                let staticImage = document.createElement("img");
-                staticImage.src = thumbnailImageSrc;
-                staticImage.alt = "static image";
-                staticImage.loading = "lazy";
-                objectAndDetails.appendChild(staticImage);
-
-                let details = document.createElement("details");
-                // details.open = true;//uncomment to autoplay gifs
-
-                let summary = document.createElement("summary");
-                summary.setAttribute("role", "button");
-                summary.setAttribute("aria-label", "static image");
-                details.appendChild(summary);
-
-                let objectAndDetails1 = document.createElement("div");
-                objectAndDetails1.classList.add("object-and-details1");
-
-                let animatedImage = document.createElement("img");
-                animatedImage.src = imageSrc;
-                animatedImage.alt = "animated image";
-                animatedImage.loading = "lazy";
-                objectAndDetails1.appendChild(animatedImage);
-
-                details.appendChild(objectAndDetails1);
-
-                objectAndDetails.appendChild(details);
-
-
-                if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                    staticImage.classList.add("nsfw");
-                    animatedImage.classList.add("nsfw");
-                }
-
-                //add a function that fullscreens the image on click and then removes it on click again
-                objectAndDetails.addEventListener("click", () => {
-                    if (objectAndDetails.classList.contains("fullscreen-gif")) {
-                        objectAndDetails.classList.remove("fullscreen-gif");
-                        details.removeAttribute("open");
-                    } else {
-                        objectAndDetails.classList.add("fullscreen-gif");
-                    }
-                })
-
-                pictureDiv.appendChild(objectAndDetails);
-
-            } else {
-
-                //just have the image added no need for gif shenanigans
-
-
-                img = document.createElement("img");
-
-                pictureDiv.appendChild(img);
-
-                img.src = imageSrc;
-
-                if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
-                    img.classList.add("nsfw");
-                }
-
-                //add a function that fullscreens the image on click and then removes it on click again
-                img.addEventListener("click", () => {
-                    if (img.classList.contains("fullscreen-image")) {
-                        img.classList.remove("fullscreen-image");
-                    } else {
-                        img.classList.add("fullscreen-image");
-                    }
-                })
+            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+                img.classList.add("nsfw");
             }
+
+            //add a function that fullscreens the image on click and then removes it on click again
+            img.addEventListener("click", () => {
+                if (img.classList.contains("fullscreen-image")) {
+                    img.classList.remove("fullscreen-image");
+                } else {
+                    img.classList.add("fullscreen-image");
+                }
+            });
 
         }
 
@@ -679,13 +637,10 @@ function getPosts(posts) {
             img.onerror = function () {
                 this.parentElement.remove();
                 if (parentDiv.children.length == 1) {
-                    fetchRandomContent(nsfwCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+                    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
         }
-
-
-
 
         //append to parentdiv a button to save a post by getting the url of the post and saving it to a cookie
         let saveButton = document.createElement("input");
@@ -736,29 +691,11 @@ function getPosts(posts) {
                 console.log(JSON.parse(localStorage.getItem("posts")));
             }
 
-            //if the saved page is showing, refresh it
-            // if (showingSavedPage) {
-            //     document.getElementById("saved").click();
-            // }
-
         });
 
         div.appendChild(saveButton);
         div.appendChild(pictureDiv);
-
-
-
-
-
         parentDiv.appendChild(div);
-
-
-        // }
-        // else
-        // {
-        //     console.log("type: "+(posts[i].data.post_hint));
-        // }
-
 
     }
     console.log("length: " + parentDiv.children.length);
@@ -823,3 +760,4 @@ function dataEqualsData(data1, data2) {
 
 // TODO: make cookies more storage efficient
 // TODO: only store whatever is used in dataEqualsData ig?
+// TODO: add a button to clear the posts (cookies)
