@@ -7,8 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reddit</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="main.js" defer></script>
-    <script src="modals.js" defer></script>
+    <script src="src/main.js" defer></script>
+    <script src="src/modals.js" defer></script>
+    <script src="src/listeners.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -42,13 +43,15 @@
             <label hidden for="nsfw" id="nsfw-label">NSFW</label>
             <input hidden type="checkbox" id="nsfw" title="NSFW?" />
 
-            <div id="filtersmodal">
-                <span id="filtersmodalcontent">
-                    <button id="filtersmodalclose">x</button>
-                    <textarea id="subredditFilter" cols="30" rows="10">Subreddits to blocklist...</textarea>
-                    <textarea id="subredditContentFilter" cols="30" rows="10">Words in subs to blocklist...</textarea>
-                </span>
-            </div>
+            <dialog id="filtersmodal">
+                <div>
+                    <textarea id="subredditFilter" cols="30" rows="10" placeholder="Subreddits to blocklist..."></textarea>
+                    <textarea id="subredditContentFilter" cols="30" rows="10" placeholder="Words in subs to blocklist..."></textarea>
+                </div>
+                <div>
+                    <button autofocus id="filtersmodalclose">Back</button>
+                </div>
+            </dialog>
 
             <!-- button for saved -->
             <button id="saved">

@@ -1,3 +1,5 @@
+"use strict";
+
 /* ELEMENTS */
 const subredditElement = document.querySelector("#subreddit");
 const fetcher = document.querySelector("#fetch");
@@ -6,13 +8,20 @@ const userfetcher = document.querySelector("#fetch-user");
 const filtersInputElement = document.querySelector("#subredditFilter");
 const containsFiltersInputElement = document.querySelector("#subredditContentFilter");
 const nsfwCheckboxCheckbox = document.querySelector("#nsfw");
+const nsfwCheckboxLabel = document.querySelector("#nsfw-label");
 const savedElement = document.querySelector("#saved");
 const ublockDetectionElement = document.querySelector("#pt-ext-root");
 const detailsElement = document.querySelector(".object-and-details > details");
 const autoscrollElement = document.querySelector("#autoscroll");
+const similarSubredditsElement = document.querySelector("#similar-subreddits");
 
 /* INPUT */
 const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
+const nsfwToggleKey = "n";
+const clearSavedKey = "x";
+const scrollDelay = 10;
+const scrollDistance = 1;
+const rateLimitResponse = 429;
 let subreddit;                               // the subreddit currently viewed
 let subredditNameContainsFilters = [];       // filters subreddits whose name contains 
 let subredditNameFilters = [];               // filters subreddits whose name is
@@ -22,71 +31,56 @@ let searchUser = false;                      // whether or not the query is used
 let searched = false;                        // whether the query currently displayed was a manual search
 let showingSavedPage = false;                // whether or not the saved page is showing
 
-fetcher.onclick = fetcherClick(false);
+fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 
-userfetcher.onclick = fetcherClick(true);
-
-randfetcher.onclick = () => {
+fetcher.addEventListener("click", () => { fetcherClick(false); });
+userfetcher.addEventListener("click", () => { fetcherClick(true); });
+randfetcher.addEventListener("click", () => {
     searched = false;
     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-};
-
-autoscrollElement.onclick = () => {
+});
+autoscrollElement.addEventListener("click", () => {
     pageScroll();
     autoscroll = !autoscroll;
-};
-
-fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+});
 
 /* FILTERS */
 containsFiltersInputElement.addEventListener("input", () => {
     subredditNameContainsFilters = containsFiltersInputElement.value.split("\n")
 });
-
 filtersInputElement.addEventListener("input", () => {
     subredditNameFilters = filtersInputElement.value.split("\n");
 });
-
 // if nsfw is clicked, and showing saved, refresh saved
-nsfwCheckboxCheckbox.onclick = () => {
+nsfwCheckboxCheckbox.addEventListener("click", () => {
     if (showingSavedPage) {
-        document.getElementById("saved").click();
+        savedElement.click();
     }
-};
-
-document.addEventListener("keydown", 
-    /**
-     * Manages hotkeys and other keyboard events on the document.
-     * @param {KeyboardEvent} e
-     * @returns {void}
-     */
-    function(e) {
-        // If the event target is the subredditElement, return early
-        if (e.target === subredditElement) {
-            return;
-        }
-
-        if (e.key == "n") {
-            let wasChecked = document.getElementById("nsfw").checked;
-            // hide the nsfw checkbox if it is not hidden, show it otherwise
-            document.getElementById("nsfw").hidden = !document.getElementById("nsfw").hidden;
-            // also remove the label
-            document.getElementById("nsfw-label").hidden = !document.getElementById("nsfw-label").hidden;
-
-            document.getElementById("nsfw").checked = false;
-
-            // if showing saved, reload saved
-            if (showingSavedPage) {
-                savedElement.click();
-            } else if (wasChecked) { // otherwise fetch random
-                fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-            }
-        } else if (e.key == "x") {
-            // clear the cookies for the posts only
-            localStorage.removeItem("posts");
-        }
+});
+document.addEventListener("keydown", (e) => {
+    // If the event target is the subredditElement, return early
+    if (e.target === subredditElement) {
+        return;
     }
-);
+
+    if (e.key == nsfwToggleKey) {
+        let wasChecked = nsfwCheckboxCheckbox.checked;
+        // hide the nsfw checkbox if it is not hidden, show it otherwise
+        nsfwCheckboxCheckbox.hidden = !nsfwCheckboxCheckbox.hidden;
+        nsfwCheckboxLabel.hidden = !nsfwCheckboxLabel.hidden;
+        nsfwCheckboxCheckbox.checked = false;
+
+        // if showing saved, reload saved
+        if (showingSavedPage) {
+            savedElement.click();
+        } else if (wasChecked) { // otherwise fetch random
+            fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+        }
+    } else if (e.key == clearSavedKey) {
+        // clear the cookies for the posts only
+        localStorage.removeItem("posts");
+    }
+});
 
 // if enter clicked while in the subreddit input, search for the subreddit
 subredditElement.addEventListener("keyup", (e) => {
@@ -96,7 +90,7 @@ subredditElement.addEventListener("keyup", (e) => {
 });
 
 // when saved button is clicked, clear the posts and add the posts from the cookie
-savedElement.onclick = () => {
+savedElement.addEventListener("click", () => {
 
     showingSavedPage = true;
 
@@ -128,7 +122,7 @@ savedElement.onclick = () => {
 
     //go through posts and remove nsfw posts if nsfw is hidden
     for (let i = 0; i < posts.length; i++) {
-        if (posts[i].data.over_18 == true && document.getElementById("nsfw").hidden == true) {
+        if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.hidden == true) {
             posts.splice(i, 1);
             i--;
         }
@@ -136,7 +130,7 @@ savedElement.onclick = () => {
 
     getPosts(posts);
 
-};
+});
 
 /* FUNCTIONS */
 
@@ -235,7 +229,7 @@ function fetchContent() {
     console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
     //if this has a 429 error get the reply header and print the time
     fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
-        if (response.status == 429) {
+        if (response.status == rateLimitResponse) {
             console.log(response.headers.get("x-ratelimit-reset"));
         }
         return response;
@@ -283,8 +277,8 @@ function fetchContent() {
 function pageScroll() {
     // if still scrolling
     if (document.getElementById("content") && autoscroll)
-        document.getElementById("content").scrollBy(0, 1);
-    scrolldelay = setTimeout(pageScroll, 10);
+        document.getElementById("content").scrollBy(0, scrollDistance);
+    scrollDelay = setTimeout(pageScroll, scrollDelay);
 }
 
 /**
@@ -355,7 +349,7 @@ function editDistance(s1, s2) {
 function searchInput(query, queryNSFW) {
     console.log("searching");
     let similar_subreddits = [];
-    let textBox = document.getElementById("similar-subreddits");
+    let textBox = similarSubredditsElement;
 
     // reads the parsedSubreddits.txt file and finds the 5 most similar subreddits to display
     fetch("./subreddit parsed/" + (queryNSFW ? "nsfw" : "") + "parsedSubreddits.txt")
@@ -483,7 +477,7 @@ function getPosts(posts) {
                 }
             };
 
-            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+            if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.checked == false) {
                 // add an element with a backdrop filter blur to blur the video
                 let blur = document.createElement("div");
                 blur.classList.add("blur");
@@ -496,19 +490,6 @@ function getPosts(posts) {
 
             // add styling to the video to make it fit
             video.classList.add("video");
-
-            //make it fullscreenable with the button
-            // video.addEventListener('click', function() {
-            //     if (video.requestFullscreen) {
-            //         video.requestFullscreen();
-            //     } else if (video.mozRequestFullScreen) { // Firefox
-            //         video.mozRequestFullScreen();
-            //     } else if (video.webkitRequestFullscreen) { // Chrome, Safari and Opera
-            //         video.webkitRequestFullscreen();
-            //     } else if (video.msRequestFullscreen) { // IE/Edge
-            //         video.msRequestFullscreen();
-            //     }
-            // });
 
         } else if (imageSrc.endsWith(".gif")) {
 
@@ -541,7 +522,7 @@ function getPosts(posts) {
 
             objectAndDetails.appendChild(details);
 
-            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+            if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.checked == false) {
                 staticImage.classList.add("nsfw");
                 animatedImage.classList.add("nsfw");
             }
@@ -565,7 +546,7 @@ function getPosts(posts) {
             pictureDiv.appendChild(img);
             img.src = imageSrc;
 
-            if (posts[i].data.over_18 == true && document.getElementById("nsfw").checked == false) {
+            if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.checked == false) {
                 img.classList.add("nsfw");
             }
 
