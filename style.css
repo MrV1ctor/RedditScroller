@@ -237,14 +237,6 @@ input {
     
 }
 
-.save-input {
-
-    /* style the button so that you cant click below it to activate it*/
-    /* each post will have a save button */
-
-    /* height: 3vw; */
-}
-
 .blur {
     filter: blur(20px);
 }

@@ -19,9 +19,9 @@ const similarSubredditsElement = document.querySelector("#similar-subreddits");
 const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
 const nsfwToggleKey = "n";
 const clearSavedKey = "x";
-const scrollDelay = 10;
-const scrollDistance = 1;
 const rateLimitResponse = 429;
+let scrollDistance = 5;
+let scrollDelay = 10;
 let subreddit;                               // the subreddit currently viewed
 let subredditNameContainsFilters = [];       // filters subreddits whose name contains 
 let subredditNameFilters = [];               // filters subreddits whose name is
@@ -39,8 +39,12 @@ randfetcher.addEventListener("click", () => {
     searched = false;
     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
 });
+
+setInterval(() => {
+    if (autoscroll) pageScroll();
+}, scrollDelay);
+
 autoscrollElement.addEventListener("click", () => {
-    pageScroll();
     autoscroll = !autoscroll;
 });
 
@@ -278,7 +282,6 @@ function pageScroll() {
     // if still scrolling
     if (document.getElementById("content") && autoscroll)
         document.getElementById("content").scrollBy(0, scrollDistance);
-    scrollDelay = setTimeout(pageScroll, scrollDelay);
 }
 
 /**
