@@ -16,12 +16,14 @@
 
 <body>
     <div id="input">
-        <div id="searchBoxSpan">
+        <span id="searchBoxSpan">
             <input type="text" oninput="searchInput()" id="subreddit" placeholder="Enter Subreddit">
             <button id="fetch">
                 <i class="searchButtonIcon fa-solid fa-search"></i>
             </button>
-            
+            <button id="fetch-random">
+                <i class="searchButtonIcon fa-solid fa-arrows-rotate"></i>
+            </button>
             <button id="fetch-user">
                 <i class="searchButtonIcon downATinyBit fa-solid fa-search"></i>
                 <i class="searchButtonIcon upABit fa-solid fa-user"></i>
@@ -29,21 +31,16 @@
             <button id="filters">
                 <i class="searchButtonIcon fa-solid fa-bars"></i>
             </button>
-        </div>
-        <div>
-            <button id="fetch-random">
-                <i class="fa-solid fa-arrows-rotate"></i>
-            </button>
-        </div>
-        <div id="searchOptions">
+        </span>
+        <span id="searchOptions">
             <!-- <label for="isUser">Search Users</label>
             <input type="checkbox" id="isUser" title="Is User?" /> -->
 
             <label for="autoscroll">Autoscroll</label>
             <input type="checkbox" id="autoscroll" title="Auto-scroll?" />
 
-            <label for="nsfw" id="nsfw-label">NSFW</label>
-            <input type="checkbox" id="nsfw" title="NSFW?" />
+            <label hidden for="nsfw" id="nsfw-label">NSFW</label>
+            <input hidden type="checkbox" id="nsfw" title="NSFW?" />
 
             <dialog id="filtersmodal">
                 <div>
@@ -61,12 +58,10 @@
             </button>
 
 
-        </div>
-        
+        </span>
     </div>
     <div id="similar-subreddits"></div>
     <div id="fetch-buttons">
-
     </div>
 </body>
 
