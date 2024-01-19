@@ -10,7 +10,6 @@ const containsFiltersInputElement = document.querySelector("#subredditContentFil
 const nsfwCheckboxCheckbox = document.querySelector("#nsfw");
 const nsfwCheckboxLabel = document.querySelector("#nsfw-label");
 const savedElement = document.querySelector("#saved");
-const ublockDetectionElement = document.querySelector("#pt-ext-root");
 const detailsElement = document.querySelector(".object-and-details > details");
 const autoscrollElement = document.querySelector("#autoscroll");
 const similarSubredditsElement = document.querySelector("#similar-subreddits");
@@ -270,9 +269,12 @@ function fetchContent() {
                 }
             }
         });
-
+        console.log("test");
         // more ublock tomfoolery
+        let ublockDetectionElement = document.querySelector("#pt-ext-root");
+
         if (ublockDetectionElement) {
+            console.log("REMOVED")
             ublockDetectionElement.remove();
         }
     });
