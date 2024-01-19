@@ -118,7 +118,7 @@ input {
     margin: 10px;
     padding: 10px;
     border: solid 2px black;
-    overflow: auto;
+    overflow: visible;
 }
 .similarsub {
     margin-right: 10px;
@@ -240,4 +240,14 @@ input {
 
 .blur {
     filter: blur(20px);
+}
+
+.filterTextArea {
+    resize: none;
+}
+
+/* style links */
+a {
+    color: rgb(109, 197, 255);
+    text-decoration: none;
 }

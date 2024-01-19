@@ -227,6 +227,10 @@ function fetchContent() {
 
     let isUser = searchUser ? "user" : "r";
 
+    if (isUser == "user") {
+        searchInput("", nsfwCheckboxCheckbox.checked);
+    }
+
     let parentDiv = document.createElement("div");
     parentDiv.id = "content";
 
@@ -353,6 +357,16 @@ function searchInput(query, queryNSFW) {
     console.log("searching");
     let similar_subreddits = [];
     let textBox = similarSubredditsElement;
+
+    // if the queries are null, read the text of the subreddit id text input
+    if (query == null) {
+        query = subredditElement.value;
+    }
+    if (query == "") {
+        textBox.innerHTML = "";
+        return;
+    }
+    
 
     // reads the parsedSubreddits.txt file and finds the 5 most similar subreddits to display
     fetch("./subreddit parsed/" + (queryNSFW ? "nsfw" : "") + "parsedSubreddits.txt")
@@ -744,4 +758,3 @@ function dataEqualsData(data1, data2) {
 
 // TODO: make cookies more storage efficient
 // TODO: only store whatever is used in dataEqualsData ig?
-// TODO: add a button to clear the posts (cookies)
