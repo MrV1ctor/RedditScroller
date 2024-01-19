@@ -730,10 +730,14 @@ function dataEqualsData(data1, data2) {
     } else {
 
         //gif/image
-        if (data1.url_overridden_by_dest == data2.url_overridden_by_dest) {
-            return true;
-        }
-        else {
+        try {
+            if (data1.url_overridden_by_dest != data2.url_overridden_by_dest) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        } catch (feature) {
             return false;
         }
 
