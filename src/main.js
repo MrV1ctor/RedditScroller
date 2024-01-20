@@ -114,7 +114,7 @@ savedElement.addEventListener("click", () => {
 
     showingSavedPage = true;
 
-    console.log("fetching saved...");
+    // console.log("fetching saved...");
 
     while (document.getElementById("content")) {
         document.getElementById("content").remove();
@@ -152,7 +152,7 @@ function fetchRandomContent(nsfw = false, nameContainsFilters, nameFilters) {
             let randomLine = ""
             do {
                 randomLine = lines[Math.floor(Math.random() * lines.length)];
-                console.log("invalid sub: " + randomLine)
+                // console.log("invalid sub: " + randomLine)
             } while (!checkSub(randomLine, nameContainsFilters, nameFilters));
             subreddit = randomLine;
             subredditElement.value = randomLine;
@@ -194,13 +194,13 @@ function fetcherClick(queryUser) {
 function checkSub(sub, nameContainsFilters, nameFilters) {
     for (let filter of nameContainsFilters) {
         if (sub.includes(filter)) {
-            console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
+            // console.log("Blocked by inclusion: sub has '" + filter + "' in the name")
             return false;
         }
     }
     for (let filter of nameFilters) {
         if (sub === filter) {
-            console.log("Blocked by manual exclusion");
+            // console.log("Blocked by manual exclusion");
             return false;
         }
     };
@@ -217,7 +217,7 @@ function fetchContent() {
     showingSavedPage = false;
     updateSavedButton();
 
-    console.log("fetching content...");
+    // console.log("fetching content...");
 
     // ublock fix
     while (document.getElementById("content")) {
@@ -233,16 +233,16 @@ function fetchContent() {
     let parentDiv = document.createElement("div");
     parentDiv.id = "content";
 
-    console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
+    // console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
     //if this has a 429 error get the reply header and print the time
     fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
         if (response.status == rateLimitResponse) {
-            console.log(response.headers.get("x-ratelimit-reset"));
+            // console.log(response.headers.get("x-ratelimit-reset"));
         }
         return response;
     }).then(response => response.json()).then(body => {
 
-        console.log(body);
+        // console.log(body);
 
         if (body.message == "Forbidden")
             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
@@ -269,12 +269,12 @@ function fetchContent() {
                 }
             }
         });
-        console.log("test");
+        // console.log("test");
         // more ublock tomfoolery
         let ublockDetectionElement = document.querySelector("#pt-ext-root");
 
         if (ublockDetectionElement) {
-            console.log("REMOVED")
+            // console.log("REMOVED")
             ublockDetectionElement.remove();
         }
     });
@@ -356,7 +356,7 @@ function editDistance(s1, s2) {
  * @returns {void}
  */
 function searchInput(query, queryNSFW) {
-    console.log("searching");
+    // console.log("searching");
     let similar_subreddits = [];
     let textBox = similarSubredditsElement;
 
@@ -446,8 +446,8 @@ function getPosts(posts) {
 
     for (let i = 0; i < posts.length; i++) {
 
-        console.log("type: " + (posts[i].data.post_hint));
-        console.log(posts[i].data);
+        // console.log("type: " + (posts[i].data.post_hint));
+        // console.log(posts[i].data);
 
         // if (posts[i].data.post_hint == "image") {
         //if it s a gallery or not a picture, skip it
@@ -480,8 +480,8 @@ function getPosts(posts) {
                 try {
                     video.src = posts[i].data.preview.reddit_video_preview.fallback_url;
                 } catch (error) {
-                    console.log("error getting video src");
-                    console.log(error);
+                    // console.log("error getting video src");
+                    // console.log(error);
                     video.src = "";
                 }
             }
@@ -675,7 +675,7 @@ function getPosts(posts) {
                 localStorage.setItem("posts", JSON.stringify(cookiePosts));
 
                 //print all saved posts
-                console.log(JSON.parse(localStorage.getItem("posts")));
+                // console.log(JSON.parse(localStorage.getItem("posts")));
             } else {
 
                 //unsave the post
@@ -688,7 +688,7 @@ function getPosts(posts) {
                 localStorage.setItem("posts", JSON.stringify(cookiePosts));
 
                 //print all saved posts
-                console.log(JSON.parse(localStorage.getItem("posts")));
+                // console.log(JSON.parse(localStorage.getItem("posts")));
             }
 
         });
@@ -698,7 +698,7 @@ function getPosts(posts) {
         parentDiv.appendChild(div);
 
     }
-    console.log("length: " + parentDiv.children.length);
+    // console.log("length: " + parentDiv.children.length);
 
     //add a div to the bottom of parent div to make sure the scroll event is triggered
     let div = document.createElement("div");
