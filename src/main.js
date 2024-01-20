@@ -14,6 +14,7 @@ const ublockDetectionElement = document.querySelector("#pt-ext-root");
 const detailsElement = document.querySelector(".object-and-details > details");
 const autoscrollElement = document.querySelector("#autoscroll");
 const similarSubredditsElement = document.querySelector("#similar-subreddits");
+const contentDivElement = document.getElementById("content")
 
 /* INPUT */
 const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
@@ -101,8 +102,8 @@ savedElement.addEventListener("click", () => {
     updateSavedButton();
 
     //remove all posts
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     //get the posts from the cookie
@@ -117,8 +118,8 @@ savedElement.addEventListener("click", () => {
 
     console.log("fetching saved...");
 
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     //reverse the order of posts
@@ -221,8 +222,8 @@ function fetchContent() {
     console.log("fetching content...");
 
     // ublock fix
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     let isUser = searchUser ? "user" : "r";
@@ -230,9 +231,6 @@ function fetchContent() {
     if (isUser == "user") {
         searchInput("", nsfwCheckboxCheckbox.checked);
     }
-
-    let parentDiv = document.createElement("div");
-    parentDiv.id = "content";
 
     console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
     //if this has a 429 error get the reply header and print the time
@@ -252,24 +250,24 @@ function fetchContent() {
         let posts = body.data.children;
         getPosts(posts);
 
-        if (parentDiv.children.length == 1) {
+        if (contentDivElement.children.length == 1) {
             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
 
         //infinite scroll stuff
-        document.getElementById("content").addEventListener('scroll', event => {
-            const { scrollHeight, scrollTop, clientHeight } = event.target;
+        // document.getElementById("content").addEventListener('scroll', event => {
+        //     const { scrollHeight, scrollTop, clientHeight } = event.target;
 
-            // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-            if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                // console.log("bottom reached");
-                if (searched || isUser == "user") {
-                    fetchContent();
-                } else {
-                    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-                }
-            }
-        });
+        //     // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
+        //     if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
+        //         // console.log("bottom reached");
+        //         if (searched || isUser == "user") {
+        //             fetchContent();
+        //         } else {
+        //             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+        //         }
+        //     }
+        // });
 
         // more ublock tomfoolery
         if (ublockDetectionElement) {
@@ -439,8 +437,6 @@ function updateSavedButton() {
 function getPosts(posts) {
 
     let isUser = searchUser ? "user" : "r";
-    let parentDiv = document.createElement("div");
-    parentDiv.id = "content";
 
     for (let i = 0; i < posts.length; i++) {
 
@@ -489,7 +485,7 @@ function getPosts(posts) {
 
             video.onerror = function () {
                 this.parentElement.remove();
-                if (parentDiv.children.length == 1) {
+                if (contentDivElement.children.length == 1) {
                     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
@@ -577,27 +573,7 @@ function getPosts(posts) {
             });
 
         }
-
-        // console.log(posts[i].data.url_overridden_by_dest);
-        title.textContent = posts[i].data.title;
-
-        div.appendChild(title);
-
-        //if in saved, add a subreddit link
-        if (showingSavedPage) {
-            let aSub = document.createElement("a");
-            aSub.href = `javascript:
-                    subreddit="${posts[i].data.subreddit}"; 
-                    subredditElement.value = subreddit;
-                    after="";
-                    fetchContent();`;
-            let sub = document.createElement("h5");
-            sub.textContent = "r/" + posts[i].data.subreddit;
-            aSub.appendChild(sub);
-            div.appendChild(aSub);
-        }
-
-
+        
         if (isUser == "user") {
             let aSub = document.createElement("a");
             aSub.href = `javascript:
@@ -626,6 +602,25 @@ function getPosts(posts) {
             // parentDiv.appendChild(div);
         }
 
+        // console.log(posts[i].data.url_overridden_by_dest);
+        title.textContent = posts[i].data.title;
+
+        div.appendChild(title);
+
+        //if in saved, add a subreddit link
+        if (showingSavedPage) {
+            let aSub = document.createElement("a");
+            aSub.href = `javascript:
+                    subreddit="${posts[i].data.subreddit}"; 
+                    subredditElement.value = subreddit;
+                    after="";
+                    fetchContent();`;
+            let sub = document.createElement("h5");
+            sub.textContent = "r/" + posts[i].data.subreddit;
+            aSub.appendChild(sub);
+            div.appendChild(aSub);
+        }
+
 
         // if (objectAndDetails) {
         //     div.appendChild(objectAndDetails);
@@ -634,7 +629,7 @@ function getPosts(posts) {
         if (img != null) {
             img.onerror = function () {
                 this.parentElement.remove();
-                if (parentDiv.children.length == 1) {
+                if (contentDivElement.children.length == 1) {
                     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
@@ -693,22 +688,10 @@ function getPosts(posts) {
 
         div.appendChild(saveButton);
         div.appendChild(pictureDiv);
-        parentDiv.appendChild(div);
+        contentDivElement.appendChild(div);
 
     }
-    console.log("length: " + parentDiv.children.length);
-
-    //add a div to the bottom of parent div to make sure the scroll event is triggered
-    let div = document.createElement("div");
-    div.style.height = window.innerHeight + "px";
-    div.style.width = "100%";
-
-    parentDiv.appendChild(div);
-
-
-    document.body.appendChild(parentDiv);
-
-
+    console.log("length: " + contentDivElement.children.length);
 }
 
 /**
