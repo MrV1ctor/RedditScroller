@@ -18,7 +18,17 @@ body {
     font-family: sans-serif;
     padding: 20px;
     font-size: 16px;
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+  display: none;
+}
+
 
 /* GENERIC CLASSES */
 
@@ -159,10 +169,14 @@ button {
     border-radius: 8px;
     width: auto;
     height: auto;
+
+
 }
 
 .post h4 {
-    margin: 1rem 0
+    margin: 1rem 0;
+    overflow-wrap: break-word;
+    width: 100%;
 }
 
 .post a h5 {

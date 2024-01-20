@@ -284,8 +284,8 @@ function fetchContent() {
  */
 function pageScroll() {
     // if still scrolling
-    if (document.getElementById("content") && autoscroll)
-        document.getElementById("content").scrollBy(0, scrollDistance);
+    if (document.defaultView && autoscroll)
+        document.defaultView.scrollBy(0, scrollDistance);
 }
 
 /**
