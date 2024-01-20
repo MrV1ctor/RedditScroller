@@ -255,19 +255,21 @@ function fetchContent() {
         }
 
         //infinite scroll stuff
-        // document.getElementById("content").addEventListener('scroll', event => {
-        //     const { scrollHeight, scrollTop, clientHeight } = event.target;
+        document.addEventListener('scroll', event => {
 
-        //     // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-        //     if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-        //         // console.log("bottom reached");
-        //         if (searched || isUser == "user") {
-        //             fetchContent();
-        //         } else {
-        //             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
-        //         }
-        //     }
-        // });
+            // console.log(window.scrollY)
+            // console.log(window.innerHeight);
+            // console.log(document.body.offsetHeight);
+            if (window.scrollY + window.innerHeight > document.body.offsetHeight) {
+                if (searched || isUser == "user") {
+                    fetchContent();
+                } else {
+                    fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+                }
+
+                document.defaultView.scrollBy(0, -document.body.offsetHeight)
+            }
+        });
 
         // more ublock tomfoolery
         if (ublockDetectionElement) {
