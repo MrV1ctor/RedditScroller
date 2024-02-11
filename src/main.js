@@ -58,6 +58,8 @@ filtersInputElement.addEventListener("input", () => {
 nsfwCheckboxCheckbox.addEventListener("click", () => {
     if (showingSavedPage) {
         savedElement.click();
+    }else { // otherwise fetch random
+        fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
     }
 });
 document.addEventListener("keydown", (e) => {
@@ -65,7 +67,7 @@ document.addEventListener("keydown", (e) => {
     if (e.target === subredditElement) {
         return;
     }
-
+    /*
     if (e.key == nsfwToggleKey) {
         let wasChecked = nsfwCheckboxCheckbox.checked;
         // hide the nsfw checkbox if it is not hidden, show it otherwise
@@ -76,10 +78,10 @@ document.addEventListener("keydown", (e) => {
         // if showing saved, reload saved
         if (showingSavedPage) {
             savedElement.click();
-        } else if (wasChecked) { // otherwise fetch random
+        } else { // otherwise fetch random
             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
-    } else if (e.key == clearSavedKey) {
+    } else*/ if (e.key == clearSavedKey) {
         // clear the cookies for the posts only
         localStorage.removeItem("posts");
     }
