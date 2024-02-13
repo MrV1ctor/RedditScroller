@@ -306,8 +306,8 @@ button {
     transform: translate(-50%, -50%);
 
     /* set the width and height keeping the aspect ratio of the image */
-    width: auto;
-    height: 100vh;
+    width: auto !important;
+    height: 100vh !important;
     
     z-index: 10000;
 }
@@ -320,8 +320,8 @@ button {
     transform: translate(-50%, -50%);
 
     /* set the width and height keeping the aspect ratio of the image */
-    width: auto;
-    height: 100vh;
+    width: auto !important;
+    height: 100vh !important;
 
     z-index: 10000;
 }
