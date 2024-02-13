@@ -13,6 +13,7 @@ const savedElement = document.querySelector("#saved");
 const detailsElement = document.querySelector(".object-and-details > details");
 const autoscrollElement = document.querySelector("#autoscroll");
 const similarSubredditsElement = document.querySelector("#similar-subreddits");
+const contentDivElement = document.getElementById("content")
 
 /* INPUT */
 const fallbackSubreddit = "ProgrammerHumor"; // the subreddit to use if the subreddit input is empty
@@ -66,9 +67,9 @@ document.addEventListener("keydown", (e) => {
     // If the event target is the subredditElement, return early
     if (e.target === subredditElement) {
         return;
-    }
-    /*
-    if (e.key == nsfwToggleKey) {
+    } 
+
+    /*if (e.key == nsfwToggleKey) {
         let wasChecked = nsfwCheckboxCheckbox.checked;
         // hide the nsfw checkbox if it is not hidden, show it otherwise
         nsfwCheckboxCheckbox.hidden = !nsfwCheckboxCheckbox.hidden;
@@ -81,7 +82,7 @@ document.addEventListener("keydown", (e) => {
         } else { // otherwise fetch random
             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
-    } else*/ if (e.key == clearSavedKey) {
+    } else */if (e.key == clearSavedKey) {
         // clear the cookies for the posts only
         localStorage.removeItem("posts");
     }
@@ -102,8 +103,8 @@ savedElement.addEventListener("click", () => {
     updateSavedButton();
 
     //remove all posts
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     //get the posts from the cookie
@@ -118,8 +119,8 @@ savedElement.addEventListener("click", () => {
 
     // console.log("fetching saved...");
 
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     //reverse the order of posts
@@ -222,8 +223,8 @@ function fetchContent() {
     // console.log("fetching content...");
 
     // ublock fix
-    while (document.getElementById("content")) {
-        document.getElementById("content").remove();
+    while (document.getElementById("content").textContent != '') {
+        document.getElementById("content").textContent = '';
     }
 
     let isUser = searchUser ? "user" : "r";
@@ -236,6 +237,7 @@ function fetchContent() {
     parentDiv.id = "content";
 
     // console.log(`fetching from https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`);
+
     //if this has a 429 error get the reply header and print the time
     fetch(`https://www.reddit.com/${isUser}/${subreddit}/.json?after=${after}&limit=50`).then(response => {
         if (response.status == rateLimitResponse) {
@@ -253,22 +255,24 @@ function fetchContent() {
         let posts = body.data.children;
         getPosts(posts);
 
-        if (parentDiv.children.length == 1) {
+        if (contentDivElement.children.length == 1) {
             fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
         }
 
         //infinite scroll stuff
-        document.getElementById("content").addEventListener('scroll', event => {
-            const { scrollHeight, scrollTop, clientHeight } = event.target;
+        document.addEventListener('scroll', event => {
 
-            // console.log(Math.abs(scrollHeight - clientHeight - scrollTop));
-            if (Math.abs(scrollHeight - clientHeight - scrollTop) <= 1) {
-                // console.log("bottom reached");
+            // console.log(window.scrollY)
+            // console.log(window.innerHeight);
+            // console.log(document.body.offsetHeight);
+            if (window.scrollY + window.innerHeight > document.body.offsetHeight) {
                 if (searched || isUser == "user") {
                     fetchContent();
                 } else {
                     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
+
+                document.defaultView.scrollBy(0, -document.body.offsetHeight)
             }
         });
         // console.log("test");
@@ -288,8 +292,8 @@ function fetchContent() {
  */
 function pageScroll() {
     // if still scrolling
-    if (document.getElementById("content") && autoscroll)
-        document.getElementById("content").scrollBy(0, scrollDistance);
+    if (document.defaultView && autoscroll)
+        document.defaultView.scrollBy(0, scrollDistance);
 }
 
 /**
@@ -443,8 +447,6 @@ function updateSavedButton() {
 function getPosts(posts) {
 
     let isUser = searchUser ? "user" : "r";
-    let parentDiv = document.createElement("div");
-    parentDiv.id = "content";
 
     for (let i = 0; i < posts.length; i++) {
 
@@ -493,7 +495,7 @@ function getPosts(posts) {
 
             video.onerror = function () {
                 this.parentElement.remove();
-                if (parentDiv.children.length == 1) {
+                if (contentDivElement.children.length == 1) {
                     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
@@ -581,34 +583,14 @@ function getPosts(posts) {
             });
 
         }
-
-        // console.log(posts[i].data.url_overridden_by_dest);
-        title.textContent = posts[i].data.title;
-
-        div.appendChild(title);
-
-        //if in saved, add a subreddit link
-        if (showingSavedPage) {
-            let aSub = document.createElement("a");
-            aSub.href = `javascript:
-                    subreddit="${posts[i].data.subreddit}"; 
-                    subredditElement.value = subreddit;
-                    after="";
-                    fetchContent();`;
-            let sub = document.createElement("h5");
-            sub.textContent = "r/" + posts[i].data.subreddit;
-            aSub.appendChild(sub);
-            div.appendChild(aSub);
-        }
-
-
+        
         if (isUser == "user") {
             let aSub = document.createElement("a");
             aSub.href = `javascript:
                     subreddit="${posts[i].data.subreddit}";
                     subredditElement.value = subreddit; 
                     after="";
-                    fetchContent();`;
+                    fetcherClick(false);`;
             let sub = document.createElement("h5");
             sub.textContent = "r/" + posts[i].data.subreddit;
             aSub.appendChild(sub);
@@ -630,6 +612,25 @@ function getPosts(posts) {
             // parentDiv.appendChild(div);
         }
 
+        // console.log(posts[i].data.url_overridden_by_dest);
+        title.textContent = posts[i].data.title;
+
+        div.appendChild(title);
+
+        //if in saved, add a subreddit link
+        if (showingSavedPage) {
+            let aSub = document.createElement("a");
+            aSub.href = `javascript:
+                    subreddit="${posts[i].data.subreddit}"; 
+                    subredditElement.value = subreddit;
+                    after="";
+                    fetchContent();`;
+            let sub = document.createElement("h5");
+            sub.textContent = "r/" + posts[i].data.subreddit;
+            aSub.appendChild(sub);
+            div.appendChild(aSub);
+        }
+
 
         // if (objectAndDetails) {
         //     div.appendChild(objectAndDetails);
@@ -638,7 +639,7 @@ function getPosts(posts) {
         if (img != null) {
             img.onerror = function () {
                 this.parentElement.remove();
-                if (parentDiv.children.length == 1) {
+                if (contentDivElement.children.length == 1) {
                     fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
                 }
             };
@@ -697,7 +698,7 @@ function getPosts(posts) {
 
         div.appendChild(saveButton);
         div.appendChild(pictureDiv);
-        parentDiv.appendChild(div);
+        contentDivElement.appendChild(div);
 
     }
     // console.log("length: " + parentDiv.children.length);
@@ -713,6 +714,7 @@ function getPosts(posts) {
     document.body.appendChild(parentDiv);
 
 
+    console.log("length: " + contentDivElement.children.length);
 }
 
 /**
