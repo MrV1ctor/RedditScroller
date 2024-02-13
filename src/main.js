@@ -582,7 +582,7 @@ function getPosts(posts) {
                     subreddit="${posts[i].data.subreddit}";
                     subredditElement.value = subreddit; 
                     after="";
-                    fetchContent();`;
+                    fetcherClick(false);`;
             let sub = document.createElement("h5");
             sub.textContent = "r/" + posts[i].data.subreddit;
             aSub.appendChild(sub);
