@@ -704,17 +704,17 @@ function getPosts(posts) {
     // console.log("length: " + parentDiv.children.length);
 
     //add a div to the bottom of parent div to make sure the scroll event is triggered
-    let div = document.createElement("div");
-    div.style.height = window.innerHeight + "px";
-    div.style.width = "100%";
+    // let div = document.createElement("div");
+    // div.style.height = window.innerHeight + "px";
+    // div.style.width = "100%";
 
-    parentDiv.appendChild(div);
-
-
-    document.body.appendChild(parentDiv);
+    // parentDiv.appendChild(div);
 
 
-    console.log("length: " + contentDivElement.children.length);
+    // document.body.appendChild(parentDiv);
+
+
+    // console.log("length: " + contentDivElement.children.length);
 }
 
 /**
@@ -766,5 +766,8 @@ function dataEqualsData(data1, data2) {
 
 }
 
-// TODO: make cookies more storage efficient
-// TODO: only store whatever is used in dataEqualsData ig?
+// TODO: infinite scroll fix
+// TODO: store only data necessary in dataEqualsData function
+// TODO: pinterest style layout in css
+// TODO: dropdown autocomplete for similar subreddits
+// TODO: audio for videos
