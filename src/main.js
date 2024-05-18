@@ -454,7 +454,7 @@ function updateSavedButton() {
 }
 
 let page = 0;
-let pageSize = 20;
+let pageSize = document.getElementById("page-size").value;
 document.getElementById("page-size").addEventListener("change", () => {
     pageSize = parseInt(document.getElementById("page-size").value);
     if (showingSavedPage) savedElement.click();
