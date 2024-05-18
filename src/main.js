@@ -106,6 +106,9 @@ savedElement.addEventListener("click", () => {
 
     updateSavedButton();
 
+    //set scroll to top
+    document.defaultView.scrollBy(0, -document.body.offsetHeight)
+
     //remove all posts
     while (document.getElementById("content").textContent != '') {
         document.getElementById("content").textContent = '';
@@ -130,7 +133,6 @@ savedElement.addEventListener("click", () => {
         return;
     }
 
-    showingSavedPage = true;
 
     // console.log("fetching saved...");
 
