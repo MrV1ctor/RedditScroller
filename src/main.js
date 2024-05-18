@@ -48,6 +48,7 @@ autoscrollElement.addEventListener("click", () => {
     autoscroll = !autoscroll;
 });
 
+
 /* FILTERS */
 containsFiltersInputElement.addEventListener("input", () => {
     subredditNameContainsFilters = containsFiltersInputElement.value.split("\n")
@@ -110,6 +111,17 @@ savedElement.addEventListener("click", () => {
     //get the posts from the cookie
     let posts = JSON.parse(localStorage.getItem("posts"));
 
+    //go through posts and remove nsfw posts if nsfw is checked
+    for (let i = 0; i < posts.length; i++) {
+        if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.checked == false) {
+            posts.splice(i, 1);
+            i--;
+        }
+    }
+
+    addSavedButtons(posts.length);
+
+
     //if there are no posts, return early
     if (posts == null) {
         return;
@@ -126,13 +138,11 @@ savedElement.addEventListener("click", () => {
     //reverse the order of posts
     posts.reverse();
 
-    //go through posts and remove nsfw posts if nsfw is hidden
-    for (let i = 0; i < posts.length; i++) {
-        if (posts[i].data.over_18 == true && nsfwCheckboxCheckbox.hidden == true) {
-            posts.splice(i, 1);
-            i--;
-        }
-    }
+    //get the first 20 posts 
+    posts = posts.slice(page * pageSize, page * pageSize + pageSize);
+    
+
+    
 
     getPosts(posts);
 
@@ -220,6 +230,12 @@ function fetchContent() {
     showingSavedPage = false;
     updateSavedButton();
 
+    //remove saved buttons
+    let topButtons = document.getElementById("top-saved");
+    topButtons.innerHTML = "";
+    let bottomButtons = document.getElementById("bottom-saved");
+    bottomButtons.innerHTML = "";
+
     // console.log("fetching content...");
 
     // ublock fix
@@ -266,6 +282,7 @@ function fetchContent() {
             // console.log(window.innerHeight);
             // console.log(document.body.offsetHeight);
             if (window.scrollY + window.innerHeight > document.body.offsetHeight) {
+                if (showingSavedPage) return;
                 if (searched || isUser == "user") {
                     fetchContent();
                 } else {
@@ -427,6 +444,72 @@ function updateSavedButton() {
         savedElement.innerHTML = "Open Saved <i class='searchButtonIcon fa-solid fa-bookmark'></i>";
     }
 
+}
+
+let page = 0;
+let pageSize = 20;
+document.getElementById("page-size").addEventListener("change", () => {
+    pageSize = parseInt(document.getElementById("page-size").value);
+    if (showingSavedPage) savedElement.click();
+});
+
+function createButtons(length, element) {
+    
+    let previousButton = document.createElement("button");
+    previousButton.textContent = "Previous";
+    previousButton.addEventListener("click", () => {
+        if (page > 0) {
+            page--;
+            savedElement.click();
+        }
+    });
+    element.appendChild(previousButton);
+    
+    //add a dropdown to select the page number
+    let pageSelect = document.createElement("select");
+    pageSelect.addEventListener("change", () => {
+        page = parseInt(pageSelect.value);
+        savedElement.click();
+    });
+    for (let i = 0; i < Math.ceil(length / pageSize); i++) {
+        let option = document.createElement("option");
+        option.value = i;
+        option.textContent = i + 1;
+        if (i == page) {
+            option.selected = true;
+        }
+        pageSelect.appendChild(option);
+    }
+    element.appendChild(pageSelect);
+    
+    let pageNumber = document.createElement("h4");
+    pageNumber.textContent = `/${Math.ceil(length / pageSize)}`;
+    element.appendChild(pageNumber);
+    
+    
+    
+    let nextButton = document.createElement("button");
+    nextButton.textContent = "Next";
+    nextButton.addEventListener("click", () => {
+        if (page < Math.ceil(length / pageSize) - 1) {
+            page++;
+            savedElement.click();
+        }
+    });
+    element.appendChild(nextButton);
+
+}
+
+function addSavedButtons(length) {
+
+    //add previous and next buttons and page number out of max to the "saved-page-buttons" div id
+    let topButtons = document.getElementById("top-saved");
+    topButtons.innerHTML = "";
+    let bottomButtons = document.getElementById("bottom-saved");
+    bottomButtons.innerHTML = "";
+    
+    createButtons(length, bottomButtons);
+    createButtons(length, topButtons);
 }
 
 /**

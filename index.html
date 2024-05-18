@@ -47,8 +47,15 @@
                 </div>
                 <div>
                     <button autofocus id="filtersmodalclose">Back</button>
-                    <label for="nsfw" id="nsfw-label">NSFW</label>
+                    <label for="nsfw" id="nsfw-label">NSFW?</label>
                     <input type="checkbox" id="nsfw" title="NSFW?" />
+                    Saved page size: <select id="page-size" title="Page size">
+                        <option value="5">5 items</option>
+                        <option value="10">10 items</option>
+                        <option value="20" selected>20 items</option>
+                        <option value="50">50 items</option>
+                        <option value="100">100 items</option>
+                    </select>
                 </div>
             </dialog>
 
@@ -59,10 +66,13 @@
         </div>
     </div>
     <div id="similar-subreddits"></div>
-    <div id="fetch-buttons">
+    <div id="top-saved" class="saved-page-buttons">
     </div>
     
     <div id="content"></div>
+    
+    <div id="bottom-saved" class="saved-page-buttons">
+    </div>
 
     <div id="scroll-spacer"></div>
 </body>
