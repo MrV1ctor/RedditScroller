@@ -42,6 +42,9 @@ randfetcher.addEventListener("click", () => {
 
 setInterval(() => {
     if (autoscroll) pageScroll();
+    if (document.getElementById("content").textContent == '') {
+        document.defaultView.scrollBy(0, -document.body.offsetHeight)
+    }
 }, scrollDelay);
 
 autoscrollElement.addEventListener("click", () => {
@@ -300,6 +303,10 @@ function fetchContent() {
             // console.log("REMOVED")
             ublockDetectionElement.remove();
         }
+
+        document.defaultView.scrollBy(0, -document.body.offsetHeight)
+
+
     });
 }
 
