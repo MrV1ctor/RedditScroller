@@ -666,7 +666,7 @@ function getPosts(posts) {
             });
 
         }
-        
+        if (showingSavedPage) isUser = "r";
         if (isUser == "user") {
             let aSub = document.createElement("a");
             aSub.href = `javascript:
