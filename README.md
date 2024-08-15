@@ -9,3 +9,10 @@ Check the box on a post to save it to the saved page.
 Click a username or subreddit on a post to open it in the scroller. 
 
 Filter which subreddits not to show. 
+
+
+
+
+
+
+Created primarily by Victor Urumov (MrV1ctor), working every once in a while for about two years.
