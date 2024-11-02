@@ -16,6 +16,11 @@
 
 <body>
     <div id="input">
+        <div id="github">
+            <a href="https://github.com/MrV1ctor/RedditScroller " target="_blank">
+                <i class="fab fa-github"></i>
+            </a>
+        </div>
         <div id="searchBoxSpan">
             <input type="text" oninput="searchInput()" id="subreddit" placeholder="Enter Subreddit">
             <button id="fetch">
@@ -47,8 +52,8 @@
                 </div>
                 <div>
                     <button autofocus id="filtersmodalclose">Back</button>
-                    <label for="nsfw" id="nsfw-label">NSFW?</label>
-                    <input type="checkbox" id="nsfw" title="NSFW?" />
+                    <label class="hidden" for="nsfw" id="nsfw-label">NSFW?</label>
+                    <input class="hidden" type="checkbox" id="nsfw" title="NSFW?" />
                     Saved page size: <select id="page-size" title="Page size">
                         <option value="5">5 items</option>
                         <option value="10">10 items</option>

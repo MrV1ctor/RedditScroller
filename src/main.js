@@ -31,7 +31,14 @@ let searchUser = false;                      // whether or not the query is used
 let searched = false;                        // whether the query currently displayed was a manual search
 let showingSavedPage = false;                // whether or not the saved page is showing
 
-fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+// fetchRandomContent(nsfwCheckboxCheckbox.checked, subredditNameContainsFilters, subredditNameFilters);
+subreddit = fallbackSubreddit;
+subredditElement.value = fallbackSubreddit;
+searchUser = false;
+after = "";
+searchInput(subreddit, false);
+fetchContent();
+
 
 fetcher.addEventListener("click", () => { fetcherClick(false); });
 userfetcher.addEventListener("click", () => { fetcherClick(true); });

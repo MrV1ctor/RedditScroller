@@ -371,3 +371,11 @@ a {
     margin-right: -5rem;
     padding: 0rem;
 }
+
+#github {
+    margin-right: 30px;
+}
+
+.hidden {
+    display: none;
+}
